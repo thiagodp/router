@@ -1,0 +1,27 @@
+{
+    "name": "phputil/router",
+    "description": "Express-like router for PHP",
+    "type": "library",
+    "scripts": {
+        "test": "kahlan",
+        "test2": "kahlan --reporter=verbose",
+        "cov": "kahlan --coverage"
+    },
+    "require": {
+    },
+    "require-dev": {
+        "kahlan/kahlan": "^5.2"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "phputil\\router\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Thiago Delgado Pinto",
+            "email": "thiago-dp@bol.com.br"
+        }
+    ]
+}
