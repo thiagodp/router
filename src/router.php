@@ -5,6 +5,7 @@ require_once 'request.php';
 require_once 'response.php';
 require_once 'mime.php';
 require_once 'entry.php';
+require_once 'regex.php';
 
 // HTTP STATUS ----------------------------------------------------------------
 
@@ -86,7 +87,7 @@ class Router extends GroupEntry {
     }
 
 
-    function listen( $rootURL, array $options = [] ) {
+    function listen( $rootURL = '', array $options = [] ) {
 
         // Create a request object if it is not defined for testing purposes
         $req = ( isset( $options[ 'req' ] ) &&
