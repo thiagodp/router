@@ -143,7 +143,7 @@ class RealHttpResponse implements HttpResponse {
             return $this->json( $body );
         }
         $this->body []= $body;
-        return $this;
+        return $this->end();
     }
 
     function json( $body ) {
@@ -157,17 +157,18 @@ class RealHttpResponse implements HttpResponse {
         } else {
             $this->body []= $body;
         }
-        return $this;
+        return $this->end();
     }
 
     function end() {
         \http_response_code( $this->statusCode );
         foreach ( $this->headers as $header => $value ) {
-            \header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
+            @\header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
         }
         foreach ( $this->body as $body ) {
             echo $body;
         }
+        return $this; // It should be kept
     }
 }
 

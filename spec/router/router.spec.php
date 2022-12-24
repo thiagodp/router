@@ -146,6 +146,44 @@ describe( 'router', function() {
     } );
 
 
+    describe( 'middleware', function() {
+
+        it( 'must be called', function() {
+            // Faking the request
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+
+            $count = 0;
+            $callback = function( $req, $res, &$stop ) use ( &$count ) { $count++; };
+            $this->router
+                ->use( $callback )
+                ->get( '/foo' );
+
+            list( $ok ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok )->toBe( true );
+            expect( $count )->toBeGreaterThan( 0 );
+        } );
+
+        it( 'can stop the router', function() {
+            // Faking the request
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+
+            $count = 0;
+            $callback = function( $req, $res, &$stop ) use ( &$count ) { $count++; $stop = true; };
+            $countRoute = 0;
+            $callbackRoute = function( $req, $res ) use ( &$countRoute ) { $countRoute++; };
+            $this->router
+                ->use( $callback )
+                ->get( '/foo', $callbackRoute );
+
+            list( $ok ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok )->toBe( false );
+            expect( $count )->toBeGreaterThan( 0 );
+            expect( $countRoute )->toBe( 0 );
+        } );
+
+    } );
+
+
 } );
 
 ?>

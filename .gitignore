@@ -1,2 +1,5 @@
 vendor
 coverage
+output
+.phpdoc
+.vscode

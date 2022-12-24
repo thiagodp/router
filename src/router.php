@@ -5,12 +5,6 @@ require_once 'request.php';
 require_once 'response.php';
 require_once 'mime.php';
 require_once 'entry.php';
-require_once 'group.php';
-
-// function router() {
-//     return new phputil\router\Router();
-// }
-
 
 // HTTP STATUS ----------------------------------------------------------------
 
@@ -37,22 +31,6 @@ function removeQualityValues( array &$input ) {
     return $new;
 }
 
-
-// MIDDLEWARE CALLBACK --------------------------------------------------------
-
-// class MiddlewareCallback {
-//     public $req;
-//     public $res;
-//     public $next;
-// }
-
-// ROUTE CALLBACK -------------------------------------------------------------
-
-// class RouteCallback {
-//     public $req;
-//     public $res;
-// }
-
 // ROUTER ---------------------------------------------------------------------
 
 class Router extends GroupEntry {
@@ -63,9 +41,18 @@ class Router extends GroupEntry {
         parent::__construct('');
     }
 
-    protected function findRoute( &$path, &$parentRoute, array &$children, &$routeEntry, &$variables ) {
+    protected function findRoute( &$req, &$res, &$path, &$parentRoute, array &$children, &$routeEntry, &$variables ) {
 
         foreach ( $children as &$entry ) {
+
+            if ( $entry->type() === ENTRY_MIDDLEWARE && isset( $entry->callback ) ) {
+                $stop = false;
+                call_user_func_array( $entry->callback, [ &$req, &$res, &$stop ] );
+                if ( $stop ) {
+                    break;
+                }
+                continue;
+            }
 
             $newRoute = joinRoutes( [ $parentRoute, $entry->route ] );
             list( $routeMatches, $var ) = extractVariables( $path, $newRoute );
@@ -90,7 +77,7 @@ class Router extends GroupEntry {
             }
 
             // Not found && group -> find in children
-            $found = $this->findRoute( $path, $newRoute, $entry->children, $routeEntry, $variables );
+            $found = $this->findRoute( $req, $res, $path, $newRoute, $entry->children, $routeEntry, $variables );
             if ( $found ) {
                 return true;
             }
@@ -107,19 +94,20 @@ class Router extends GroupEntry {
             ( $options[ 'req' ] instanceof HttpRequest ) )
             ? $options[ 'req' ] : new RealHttpRequest();
 
-        // Extract route path
-        $path = str_replace( $rootURL, '', $req->urlWithoutQueries() );
-
-        // FIND
-        $routeEntry = null;
-        $variables = null;
-        $found = $this->findRoute( $path, $this->route, $this->children, $routeEntry, $variables );
 
         // Create a response object if it is not defined for testing purposes
         $res = ( isset( $options[ 'res' ] ) &&
             \is_object( $options[ 'res' ] ) &&
             ( $options[ 'res' ] instanceof HttpResponse ) )
             ? $options[ 'res' ] : new RealHttpResponse();
+
+        // Extract route path
+        $path = str_replace( $rootURL, '', $req->urlWithoutQueries() );
+
+        // FIND
+        $routeEntry = null;
+        $variables = null;
+        $found = $this->findRoute( $req, $res, $path, $this->route, $this->children, $routeEntry, $variables );
 
         // Not found
         if ( ! isset( $routeEntry ) ) {
@@ -139,7 +127,7 @@ class Router extends GroupEntry {
         }
 
         // Found -> invoke the given callback with request and response objects
-        $ok = ! ( call_user_func_array( $routeEntry->callback, [ $req, $res, $variables ] ) === false );
+        $ok = ! ( call_user_func_array( $routeEntry->callback, [ &$req, &$res, $variables ] ) === false );
         return [ $ok, $req, $res, $variables ];
     }
 

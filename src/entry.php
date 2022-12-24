@@ -20,11 +20,30 @@ const SUPPORTED_METHODS = [
 ];
 
 
-// const ENTRY_ROUTE       = 'r';
-// const ENTRY_GROUP       = 'g';
-// const ENTRY_MIDDLEWARE  = 'm';
+const ENTRY_HTTP        = 'h';
+const ENTRY_GROUP       = 'g';
+const ENTRY_MIDDLEWARE  = 'm';
 
-class Entry {
+interface Entry {
+    function type();
+}
+
+class MiddlewareEntry implements Entry {
+
+    /** @var callback Callback like function ( $req, $res, &$stop ) */
+    public $callback = null;
+
+    public function __construct( $callback ) {
+        $this->callback = $callback;
+    }
+
+    function type() {
+        return ENTRY_MIDDLEWARE;
+    }
+}
+
+
+abstract class RouteBasedEntry implements Entry {
 
     /** @var string */
     public $route = '';
@@ -38,10 +57,13 @@ class Entry {
     /** @var bool */
     public $isGroup = false;
 
-
     function __construct( $route ) {
         $this->route = $route;
     }
+
+    /** @inheritDoc */
+    abstract function type();
+
 
     function withParent( $parent ) {
         $this->parent = $parent;
@@ -83,7 +105,7 @@ class Entry {
 }
 
 
-class RouteEntry extends Entry {
+class HttpEntry extends RouteBasedEntry {
 
     public $httpMethod = METHOD_GET;
     public $callback = null;
@@ -93,14 +115,24 @@ class RouteEntry extends Entry {
         $this->httpMethod = $httpMethod;
         $this->callback = $callback;
     }
+
+    /** @inheritDoc */
+    function type() {
+        return ENTRY_HTTP;
+    }
 }
 
 
-class GroupEntry extends Entry {
+class GroupEntry extends RouteBasedEntry {
 
     function __construct( $route ) {
         parent::__construct( $route );
         $this->isGroup = true;
+    }
+
+    /** @inheritDoc */
+    function type() {
+        return ENTRY_GROUP;
     }
 
     // HTTP
@@ -146,10 +178,10 @@ class GroupEntry extends Entry {
         }
         if ( \is_array( $route ) ) {
             foreach ( $route as $str ) {
-                $this->children []= new RouteEntry( $str, $httpMethod, $callback );
+                $this->children []= new HttpEntry( $str, $httpMethod, $callback );
             }
         } else {
-            $this->children []= new RouteEntry( $route, $httpMethod, $callback );
+            $this->children []= new HttpEntry( $route, $httpMethod, $callback );
         }
         return $this;
     }
@@ -166,6 +198,13 @@ class GroupEntry extends Entry {
     /** Alias to group() */
     function route( $route ) {
         return $this->group( $route );
+    }
+
+    // MIDDLEWARE
+
+    function use( $callback ) {
+        $this->children []= new MiddlewareEntry( $callback );
+        return $this;
     }
 
     // BACK TO THE PARENT
