@@ -63,6 +63,7 @@ class Router extends GroupEntry {
                 foreach ( $var as $key => $value ) {
                     $variables[ $key ] = $value;
                 }
+                $req->withParams( $variables );
             }
 
             // Found
