@@ -123,6 +123,74 @@ describe( 'router', function() {
             expect( $res->isStatus( STATUS_NOT_FOUND ) )->toBeTruthy();
         } );
 
+
+        it( 'should find the route in a group with an http method that points to the root', function() {
+            // Faking the request
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'POST' );
+
+            $count = 0;
+            $callback = function( $req, $res ) use ( &$count ) { $count++; };
+
+            // Making the expectation
+            $this->router->group( '/foo' )->post( '/', $callback );
+            list( $ok, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+
+            expect( $ok )->toBe( true );
+            expect( $count )->toBe( 1 );
+        } );
+
+
+        it( 'differs a route to the root from a route with a parameter', function() {
+
+            $count1 = 0;
+            $callback1 = function( $req, $res ) use ( &$count1 ) { $count1++; };
+            $count2 = 0;
+            $callback2 = function( $req, $res ) use ( &$count2 ) { $count2++; };
+
+            // Making the expectation
+            $this->router->group( '/foo' )
+                ->get( '/', $callback1 )
+                ->get( '/:bar', $callback2 );
+
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+            list( $ok1, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok1 )->toBe( true );
+            expect( $count1 )->toBe( 1 );
+            expect( $count2 )->toBe( 0 );
+
+            $this->fakeReq->withURL( '/foo/Íon' )->withMethod( 'GET' );
+            list( $ok2, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok2 )->toBe( true );
+            expect( $count2 )->toBe( 1 );
+            expect( $count1 )->toBe( 1 );
+        } );
+
+
+        it( 'differs two routes to the root with different methods', function() {
+
+            $count1 = 0;
+            $callback1 = function( $req, $res ) use ( &$count1 ) { $count1++; };
+            $count2 = 0;
+            $callback2 = function( $req, $res ) use ( &$count2 ) { $count2++; };
+
+            // Making the expectation
+            $this->router->group( '/foo' )
+                ->get( '/', $callback1 )
+                ->post( '/', $callback2 );
+
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+            list( $ok1, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok1 )->toBe( true );
+            expect( $count1 )->toBe( 1 );
+            expect( $count2 )->toBe( 0 );
+
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'POST' );
+            list( $ok2, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok2 )->toBe( true );
+            expect( $count2 )->toBe( 1 );
+            expect( $count1 )->toBe( 1 );
+        } );
+
     } );
 
     describe( 'under two groups', function() {

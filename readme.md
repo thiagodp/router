@@ -27,6 +27,7 @@ composer require phputil/router
 - [✔] Chainable definitions
     - _e.g._ `$app->get( '/foo', $cbGetFoo )->post( '/foo', $cbPostFoo )->listen();`
 - [✔] Extra: Can mock HTTP requests for testing, without needing to run an HTTP server.
+- [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 
 
 **Note**: Unlike Express, `phputil/router` needs an HTTP server to run - if the request is not mocked. You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
@@ -39,29 +40,62 @@ composer require phputil/router
 ```php
 require_once 'vendor/autoload.php';
 
-$app = new \phputil\Router();
+$app = new \phputil\router\Router();
 $app->get( '/hello', function( $req, $res ) { $res->send( 'Hello, world!' ); } );
+$app->get( '/people/:name', function( $req, $res ) { $res->send( $req->param('name') ); } );
 $app->listen();
 ```
 
-### Some more
+### CRUD with JSON
 
 ```php
+<?php
 require_once 'vendor/autoload.php';
-$app = new \phputil\Router();
+$app = new \phputil\router\Router();
 
-$app->get( '/json', function( $req, $res ) { $res->json( [ 'hello' => 'world' ] ); } );
+$tasks = [ // Some data for the example
+    ['id'=>1, 'what'=>'Buy beer'],
+    ['id'=>2, 'what'=>'Wash the dishes']
+];
 
-$app->get( '/people/:name', function( $req, $res ) { $res->send( $req->param('name') ); } );
+function generateId( $arrayCopy ) { // Just for the example
+    $last = end( $arrayCopy );
+    return isset( $last, $last['id'] ) ? 1 + $last['id'] : 1;
+}
 
-$app->route( '/names' )
-    ->get( '/:who', function( $req, $res ) {
-        $who = $req->param( 'who' )
-        $res->send( $who );
+$app->route( '/tasks' )
+    ->get( '/', function( $req, $res ) use ( &$tasks ) {
+        $res->json( $tasks );
     } )
-    ->post( '/', function( $req, $res ) {
-        $name = $req->body();
-        $res->status( 201 )->send( "Created $name." );
+    ->post( '/', function( $req, $res ) use ( &$tasks ) {
+        $t = (array) json_encode( $req->rawBody() );
+        $t['id'] = generateId( $tasks );
+        $tasks []= $t;
+        $res->status( 201 )->send( $t['id'] ); // Created
+    } )
+    ->get( '/:id', function( $req, $res ) use ( &$tasks ) {
+        $key = array_search( $req->param( 'id' ), array_column( $tasks, 'id' ) );
+        if ( $key === false ) {
+            return $res->status( 404 )->send( 'Not Found' );
+        }
+        $res->json( $tasks[ $key ] );
+    } )
+    ->delete( '/:id', function( $req, $res ) use ( &$tasks ) {
+        $key = array_search( $req->param( 'id' ), array_column( $tasks, 'id' ) );
+        if ( $key === false ) {
+            return $res->status( 404 )->send( 'Not Found' );
+        }
+        unset( $tasks[ $key ] ); // Remove
+        $res->status( 204 )->end(); // No Content
+    } )
+    ->put( '/:id', function( $req, $res ) use ( &$tasks ) {
+        $key = array_search( $req->param( 'id' ), array_column( $tasks, 'id' ) );
+        if ( $key === false ) {
+            return $res->status( 404 )->send( 'Not Found' );
+        }
+        $t = (array) json_encode( $req->rawBody() );
+        $tasks[ $key ] = $t;
+        $res->end();
     } );
 
 $app->listen();

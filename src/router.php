@@ -42,10 +42,14 @@ class Router extends GroupEntry {
         parent::__construct('');
     }
 
-    protected function findRoute( &$req, &$res, &$path, &$parentRoute, array &$children, &$routeEntry, &$variables ) {
+    // TODO: refactor
+    protected function findRoute(
+        &$req, &$res, &$path, &$httpMethod, &$parentRoute, array &$children, &$routeEntry, &$variables, &$routeMatched
+    ) {
 
         foreach ( $children as &$entry ) {
 
+            // Middleware
             if ( $entry->type() === ENTRY_MIDDLEWARE && isset( $entry->callback ) ) {
                 $stop = false;
                 call_user_func_array( $entry->callback, [ &$req, &$res, &$stop ] );
@@ -55,22 +59,26 @@ class Router extends GroupEntry {
                 continue;
             }
 
+            // Find the route
             $newRoute = joinRoutes( [ $parentRoute, $entry->route ] );
             list( $routeMatches, $var ) = extractVariables( $path, $newRoute );
 
-             // Capture the variables from Groups or Routes if matched
+            // Found -> Capture the variables from Groups or Routes if matched
             if ( $routeMatches && isset( $var ) ) {
+                $variables = [];
                 foreach ( $var as $key => $value ) {
                     $variables[ $key ] = $value;
                 }
                 $req->withParams( $variables );
             }
 
-            // Found
-            // if ( $routeMatches ) { // Matches both a Group and a Route
-            if ( $routeMatches && ! $entry->isGroup ) { // Matches only a Route
-                $routeEntry = $entry;
-                return true;
+            // Matches only a Route (not a group) that has the same HTTP method
+            if ( $routeMatches && ! $entry->isGroup ) {
+                $routeMatched = true;
+                if ( $entry->httpMethod === $httpMethod ) {
+                    $routeEntry = $entry;
+                    return true;
+                }
             }
 
             // Not found && not a group -> try next
@@ -79,7 +87,8 @@ class Router extends GroupEntry {
             }
 
             // Not found && group -> find in children
-            $found = $this->findRoute( $req, $res, $path, $newRoute, $entry->children, $routeEntry, $variables );
+            $found = $this->findRoute(
+                $req, $res, $path, $httpMethod, $newRoute, $entry->children, $routeEntry, $variables, $routeMatched );
             if ( $found ) {
                 return true;
             }
@@ -104,22 +113,26 @@ class Router extends GroupEntry {
             ? $options[ 'res' ] : new RealHttpResponse();
 
         // Extract route path
-        $path = str_replace( $rootURL, '', $req->urlWithoutQueries() );
+        $path = urldecode( str_replace( $rootURL, '', $req->urlWithoutQueries() ) );
 
         // FIND
         $routeEntry = null;
         $variables = null;
-        $found = $this->findRoute( $req, $res, $path, $this->route, $this->children, $routeEntry, $variables );
+        $httpMethod = $req->method();
+        $routeMatched = false;
+
+        $found = $this->findRoute(
+            $req, $res, $path, $httpMethod, $this->route, $this->children, $routeEntry, $variables, $routeMatched );
+
+        // Method not allowed
+        if ( $routeMatched && ! isset( $routeEntry )  ) { // Route matched but has no entry
+            $res->status( STATUS_METHOD_NOT_ALLOWED )->end();
+            return [ false, $req, $res, $variables ];
+        }
 
         // Not found
         if ( ! isset( $routeEntry ) ) {
             $res->status( STATUS_NOT_FOUND )->end();
-            return [ false, $req, $res, $variables ];
-        }
-
-        // Method not allowed
-        if ( ! $routeEntry->isGroup && $routeEntry->httpMethod !== $req->method() ) {
-            $res->status( STATUS_METHOD_NOT_ALLOWED )->end();
             return [ false, $req, $res, $variables ];
         }
 

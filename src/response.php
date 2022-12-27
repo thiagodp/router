@@ -29,6 +29,7 @@ interface HttpResponse {
 
 class RealHttpResponse implements HttpResponse {
 
+    public $defaultContentType = 'Content-Type: text/html;charset=UTF-8';
     private $statusCode = 200;
     private $headers = [];
     private $body = [];
@@ -162,8 +163,15 @@ class RealHttpResponse implements HttpResponse {
 
     function end() {
         \http_response_code( $this->statusCode );
+        $hasContentType = false;
         foreach ( $this->headers as $header => $value ) {
+            if ( ! $hasContentType && mb_stripos( $header, 'Content-Type' ) === 0 ) {
+                $hasContentType = true;
+            }
             @\header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
+        }
+        if ( ! $hasContentType ) {
+            @\header( $this->defaultContentType );
         }
         foreach ( $this->body as $body ) {
             echo $body;

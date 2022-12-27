@@ -132,7 +132,7 @@ class RealHttpRequest implements HttpRequest {
     /** @inheritDoc */
     function param( $name ) {
         if ( isset( $_GET[ $name ] ) ) {
-            return $_GET[ $name ];
+            return urldecode( $_GET[ $name ] );
         }
         if ( isset( $this->_params[ $name ] ) ) {
             return $this->_params[ $name ];
@@ -218,7 +218,6 @@ function removeQueries( $url ) {
     }
     return \mb_substr( $url, 0, $index );
 }
-
 
 /**
  * Extra, user-defined data.
