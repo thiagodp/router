@@ -108,12 +108,14 @@ abstract class RouteBasedEntry implements Entry {
 class HttpEntry extends RouteBasedEntry {
 
     public $httpMethod = METHOD_GET;
-    public $callback = null;
 
-    function __construct( $route, $httpMethod, $callback = null ) {
+    /** @var array Array of callbacks with the following syntax: ( $req, $res, bool &$stop = false ) */
+    public $callbacks = [];
+
+    function __construct( $route, $httpMethod, array $callbacks ) {
         parent::__construct( $route );
         $this->httpMethod = $httpMethod;
-        $this->callback = $callback;
+        $this->callbacks = $callbacks;
     }
 
     /** @inheritDoc */
@@ -137,51 +139,51 @@ class GroupEntry extends RouteBasedEntry {
 
     // HTTP
 
-    function get( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_GET, $callback );
+    function get( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_GET, $callbacks );
     }
 
-    function post( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_POST, $callback );
+    function post( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_POST, $callbacks );
     }
 
-    function put( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_PUT, $callback );
+    function put( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_PUT, $callbacks );
     }
 
-    function delete( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_DELETE, $callback );
+    function delete( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_DELETE, $callbacks );
     }
 
-    function patch( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_PATCH, $callback );
+    function patch( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_PATCH, $callbacks );
     }
 
-    function options( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_OPTIONS, $callback );
+    function options( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_OPTIONS, $callbacks );
     }
 
-    function head( $route, $callback = null ) {
-        return $this->addEntry( $route, METHOD_HEAD, $callback );
+    function head( $route, callable ...$callbacks ) {
+        return $this->addEntry( $route, METHOD_HEAD, $callbacks );
     }
 
-    function all( $route, $callback = null ) {
+    function all( $route, callable ...$callbacks ) {
         foreach ( SUPPORTED_METHODS as $method ) {
-            $this->addEntry( $method, $route, $callback );
+            $this->addEntry( $method, $route, $callbacks );
         }
         return $this;
     }
 
-    protected function addEntry( $route, $httpMethod, $callback = null ) {
+    protected function addEntry( $route, $httpMethod, array $callbacks ) {
         if ( ! isHttpMethodValid( $httpMethod ) ) {
             throw new \LogicException( "Invalid HTTP method: $httpMethod" );
         }
         if ( \is_array( $route ) ) {
             foreach ( $route as $str ) {
-                $this->children []= new HttpEntry( $str, $httpMethod, $callback );
+                $this->children []= new HttpEntry( $str, $httpMethod, $callbacks );
             }
         } else {
-            $this->children []= new HttpEntry( $route, $httpMethod, $callback );
+            $this->children []= new HttpEntry( $route, $httpMethod, $callbacks );
         }
         return $this;
     }
@@ -200,6 +202,11 @@ class GroupEntry extends RouteBasedEntry {
         return $this->group( $route );
     }
 
+    /** Back to the parent, if it exists */
+    function end() {
+        return $this->parent === null ? $this : $this->parent;
+    }
+
     // MIDDLEWARE
 
     function use( $callback ) {
@@ -207,11 +214,6 @@ class GroupEntry extends RouteBasedEntry {
         return $this;
     }
 
-    // BACK TO THE PARENT
-
-    function end() {
-        return $this->parent === null ? $this : $this->parent;
-    }
 }
 
 /**

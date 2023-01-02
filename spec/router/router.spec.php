@@ -23,7 +23,7 @@ describe( 'router', function() {
         $this->router = null;
     } );
 
-    describe( 'direct methods', function () {
+    describe( 'callback to HTTP method', function () {
 
         it( 'should invoke the given callback when it finds the route', function() {
 
@@ -68,6 +68,46 @@ describe( 'router', function() {
             expect( $ok )->toBe( false );
             expect( $count )->toBe( 0 );
             expect( $res->isStatus( STATUS_METHOD_NOT_ALLOWED ) )->toBeTruthy();
+        } );
+
+
+        describe( 'middleware', function() {
+
+            it( 'should not call the next callback when the prior callback indicates a stop', function() {
+
+                $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+
+                $callback1 = function( $req, $res, &$stop ) { $stop = true; };
+
+                $count = 0;
+                $callback2 = function( $req, $res ) use ( &$count ) { $count++; };
+
+                $this->router->get( '/foo', $callback1, $callback2 );
+                list( $ok, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] ); // It should NOT call $calllback
+
+                expect( $ok )->toBe( true );
+                expect( $count )->toBe( 0 );
+                expect( $res->isStatus( STATUS_NOT_FOUND ) )->toBeFalsy();
+            } );
+
+
+            it( 'should call all the callbacks when the prior callback indicates a stop', function() {
+
+                $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+
+                $count = 0;
+                $callback1 = function( $req, $res ) use ( &$count ) { $count++; };
+                $callback2 = function( $req, $res ) use ( &$count ) { $count++; };
+                $callback3 = function( $req, $res ) use ( &$count ) { $count++; };
+
+                $this->router->get( '/foo', $callback1, $callback2, $callback3 );
+                list( $ok, , $res ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] ); // It should NOT call $calllback
+
+                expect( $ok )->toBe( true );
+                expect( $count )->toBe( 3 );
+                expect( $res->isStatus( STATUS_NOT_FOUND ) )->toBeFalsy();
+            } );
+
         } );
 
     } );
@@ -247,6 +287,47 @@ describe( 'router', function() {
             expect( $ok )->toBe( false );
             expect( $count )->toBeGreaterThan( 0 );
             expect( $countRoute )->toBe( 0 );
+        } );
+
+        it( 'works per group', function() {
+            // Faking the request
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+
+            $count = 0;
+            $callback1 = function( $req, $res, &$stop ) use ( &$count ) { $count++; };
+            $callback2 = function( $req, $res, &$stop ) use ( &$count ) { $count++; };
+
+            $this->router->group( '/foo' )
+                ->use( $callback1 )
+                ->post( '/' )
+                ->get( '/', $callback2 );
+
+            list( $ok ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok )->toBe( true );
+            expect( $count )->toBe( 2 );
+        } );
+
+
+        it( 'is not called when defined for other group', function() {
+            // Faking the request
+            $this->fakeReq->withURL( '/bar' )->withMethod( 'GET' );
+
+            $count = 0;
+            $callback1 = function( $req, $res, &$stop ) use ( &$count ) { $count += 10; };
+            $callback2 = function( $req, $res, &$stop ) use ( &$count ) { $count += 20; };
+            $callback3 = function( $req, $res, &$stop ) use ( &$count ) { $count += 1; };
+
+            $this->router
+                ->use( $callback1 )
+                ->group( '/foo' )
+                    ->use( $callback2 )
+                    ->get( '/' )
+                    ->end()
+                ->get( '/bar', $callback3 );
+
+            list( $ok ) = $this->router->listen( '', [ 'req' => $this->fakeReq ] );
+            expect( $ok )->toBe( true );
+            expect( $count )->toBe( 11 );
         } );
 
     } );

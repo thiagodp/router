@@ -1,6 +1,8 @@
 <?php
 namespace phputil\router;
 
+use RuntimeException;
+
 require_once 'request.php';
 require_once 'response.php';
 require_once 'mime.php';
@@ -46,7 +48,6 @@ class Router extends GroupEntry {
     protected function findRoute(
         &$req, &$res, &$path, &$httpMethod, &$parentRoute, array &$children, &$routeEntry, &$variables, &$routeMatched
     ) {
-
         foreach ( $children as &$entry ) {
 
             // Middleware
@@ -56,15 +57,19 @@ class Router extends GroupEntry {
                 if ( $stop ) {
                     break;
                 }
-                continue;
+                continue; // Proceed to the next entry
             }
 
             // Find the route
             $newRoute = joinRoutes( [ $parentRoute, $entry->route ] );
-            list( $routeMatches, $var ) = extractVariables( $path, $newRoute );
+            $isGroupRoute = $entry->type() === ENTRY_GROUP;
+            list( $found, $var ) = extractVariables( $path, $newRoute, $isGroupRoute );
+            if ( ! $found ) {
+                continue;
+            }
 
-            // Found -> Capture the variables from Groups or Routes if matched
-            if ( $routeMatches && isset( $var ) ) {
+            // Capture the variables from both Groups and Routes
+            if ( isset( $var ) ) {
                 $variables = [];
                 foreach ( $var as $key => $value ) {
                     $variables[ $key ] = $value;
@@ -72,21 +77,18 @@ class Router extends GroupEntry {
                 $req->withParams( $variables );
             }
 
-            // Matches only a Route (not a group) that has the same HTTP method
-            if ( $routeMatches && ! $entry->isGroup ) {
-                $routeMatched = true;
+            if ( ! $entry->isGroup ) {
+                $routeMatched = true; // It was found for a route
+                // Now let's check the HTTP method
                 if ( $entry->httpMethod === $httpMethod ) {
                     $routeEntry = $entry;
                     return true;
                 }
-            }
-
-            // Not found && not a group -> try next
-            if ( ! $entry->isGroup ) {
+                // Not the same HTTP method -> let's try the next entry
                 continue;
             }
 
-            // Not found && group -> find in children
+            // It is was a group, find in children
             $found = $this->findRoute(
                 $req, $res, $path, $httpMethod, $newRoute, $entry->children, $routeEntry, $variables, $routeMatched );
             if ( $found ) {
@@ -137,12 +139,29 @@ class Router extends GroupEntry {
         }
 
         // Callback not defined (?)
-        if ( ! isset( $routeEntry->callback ) ) {
+        if ( ! isset( $routeEntry->callbacks ) || count( $routeEntry->callbacks ) <= 0 ) {
             return [ true, $req, $res, $variables ];
         }
 
-        // Found -> invoke the given callback with request and response objects
-        $ok = ! ( call_user_func_array( $routeEntry->callback, [ &$req, &$res, $variables ] ) === false );
+        // Found -> invoke the given callbacks with request and response objects
+        $ok = true;
+        $stop = false;
+        foreach ( $routeEntry->callbacks as &$callback ) {
+
+            $args = [ &$req, &$res, &$stop ];
+
+            // $rf = new \ReflectionFunction( $callback );
+            // $rfParams = $rf->getParameters();
+            // if ( count( $rfParams ) < 3 ) { // User did not defined $stop
+            //     array_pop( $args );
+            // }
+
+            $ok = ! ( \call_user_func_array( $callback, $args ) === false );
+            if ( ! $ok || $stop ) {
+                break;
+            }
+        }
+
         return [ $ok, $req, $res, $variables ];
     }
 

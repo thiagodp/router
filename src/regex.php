@@ -7,9 +7,11 @@ namespace phputil\router;
 class R2R {
     public string $regex;
     public array $params;
-    function __construct( string $regex, array $params = [] ) {
+    public bool $isGroupRoute;
+    function __construct( string $regex, array $params = [], bool $isGroupRoute = false ) {
         $this->regex = $regex;
         $this->params = $params;
+        $this->isGroupRoute = $isGroupRoute;
     }
 }
 
@@ -17,9 +19,10 @@ class R2R {
  * Transform a route into a regex.
  *
  * @param string $route Route
+ * @param bool $isGroupRoute Indicates if it is a group route.
  * @return R2R
  */
-function routeToRegex( string $route ): R2R {
+function routeToRegex( string $route, bool $isGroupRoute = false ): R2R {
 
     // Asterisk replacement
     $asteriskRegex = '[\pL 0-9\_\-\.\,\;\%\?\=\!\#\&\+\*\$\@\~\[\]\(\)]';
@@ -48,8 +51,8 @@ function routeToRegex( string $route ): R2R {
         $r .= '\/?'; // Add an optional slash
     }
 
-    $r = '/^' . $r . '$/u';
-    return new R2R( $r, $matches );
+    $r = $isGroupRoute ? ( '/^' . $r . '/u' ) : ( '/^' . $r . '$/u' );
+    return new R2R( $r, $matches, $isGroupRoute );
 }
 
 /**
@@ -60,6 +63,7 @@ function routeToRegex( string $route ): R2R {
  *
  * @param string $path  URL path.
  * @param string $route Desired route.
+ * @param bool $isGroupRoute Indicates if it is a group route.
  * @return array
  *
  * @example
@@ -68,8 +72,8 @@ function routeToRegex( string $route ): R2R {
  *  assertTrue( array_key_exists( 'w', $variables ) );
  *  assertEquals( $variables[ 'w' ], 'world' );
  */
-function extractVariables( string $path, string $route ): array {
-    $r = routeToRegex( $route );
+function extractVariables( string $path, string $route, bool $isGroupRoute = false ): array {
+    $r = routeToRegex( $route, $isGroupRoute );
     $matches = [];
     if ( ! preg_match( $r->regex, $path, $matches ) ) {
         return [ false, [] ];

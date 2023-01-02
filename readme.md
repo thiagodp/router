@@ -15,25 +15,30 @@ composer require phputil/router
 
 ## Features
 
-- [✔] Standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`, `HEAD`, `OPTIONS`) and `PATCH`.
-- [✔] Parameters
+- [✔] Support to standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`, `HEAD`, `OPTIONS`) and `PATCH`.
+- [✔] Route parameters
     - _e.g._ `$app->get('/customers/:id', function( $req, $res ) { $res->send( $req->param('id') ); } );`
 - [✔] URL groups
     - _e.g._ `$app->route('/customers/:id')->get('/emails', $cbGetEmails );`
-- [✔] Middlewares
+- [✔] Global middlewares
     - _e.g._ `$app->use( function( $req, $res, &$stop ) { /*...*/ } );`
-- [✔] Cookies
+- [✔] Middlewares per URL group
+    - _e.g._ `$app->route( '/admin' )->use( $middlewareIsAdmin )->get( '/', function( $req, $res ) { /*...*/ } );`
+- [✔] Middlewares per route
+    - _e.g._ `$app->get( '/', $middleware1, $middleware2, function( $req, $res ) { /*...*/ } );`
+- [✔] Request cookies
     - _e.g._ `$app->get('/', function( $req, $res ) { $res->send( $req->cookie('sid') ); } );`
-- [✔] Chainable definitions
-    - _e.g._ `$app->get( '/foo', $cbGetFoo )->post( '/foo', $cbPostFoo )->listen();`
-- [✔] Extra: Can mock HTTP requests for testing, without needing to run an HTTP server.
+- [✔] _Extra_: Can mock HTTP requests for testing, without needing to run an HTTP server.
 - [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 
 
-**Note**: Unlike Express, `phputil/router` needs an HTTP server to run - if the request is not mocked. You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
+**Notes about `phputil/router`**:
 
-## Usage
+1. Unlike Express, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
 
+2. The library does not aim to cover the entire [Express API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
+
+## Examples
 
 ### Hello World
 
@@ -41,8 +46,47 @@ composer require phputil/router
 require_once 'vendor/autoload.php';
 
 $app = new \phputil\router\Router();
-$app->get( '/hello', function( $req, $res ) { $res->send( 'Hello, world!' ); } );
-$app->get( '/people/:name', function( $req, $res ) { $res->send( $req->param('name') ); } );
+$app->get('/', function( $req, $res ) {
+    $res->send( 'Hello World!' );
+} )
+$app->listen();
+```
+
+### Saying Hi
+
+```php
+require_once 'vendor/autoload.php';
+
+$app = new \phputil\router\Router();
+$app->route( '/hi' )
+    ->get('/', function( $req, $res ) {
+        $res->send( 'Hi, Anonymous' );
+    } )
+    ->get('/:name', function( $req, $res ) {
+        $res->send( 'Hi, ' . $req->param( 'name' ) );
+    } );
+$app->listen();
+```
+
+### Middleware per route
+
+```php
+require_once 'vendor/autoload.php';
+
+$middlewareIsAdmin = function( $req, $res, &$stop ) {
+    session_start();
+    $isAdmin = isset( $_SESSION[ 'admin' ] ) && $_SESSION[ 'admin' ];
+    if ( $isAdmin ) {
+        return; // Allowed
+    }
+    $stop = true;
+    $res->status( 403 )->end(); // Forbidden
+};
+
+$app = new \phputil\router\Router();
+$app->get( '/admin', $middlewareIsAdmin, function( $req, $res ) {
+    $res->send( 'Hello, admin' );
+} );
 $app->listen();
 ```
 
@@ -51,7 +95,6 @@ $app->listen();
 ```php
 <?php
 require_once 'vendor/autoload.php';
-$app = new \phputil\router\Router();
 
 $tasks = [ // Some data for the example
     ['id'=>1, 'what'=>'Buy beer'],
@@ -63,6 +106,7 @@ function generateId( $arrayCopy ) { // Just for the example
     return isset( $last, $last['id'] ) ? 1 + $last['id'] : 1;
 }
 
+$app = new \phputil\router\Router();
 $app->route( '/tasks' )
     ->get( '/', function( $req, $res ) use ( &$tasks ) {
         $res->json( $tasks );
@@ -103,13 +147,14 @@ $app->listen();
 
 ## API
 
+_Soon_
 
-## Mocking an HTTP request
+### Mocking an HTTP request
 
 ```php
 require_once 'vendor/autoload.php';
-use \phputil\Router;
-use \phputil\FakeHttpRequest;
+use \phputil\router\FakeHttpRequest;
+use \phputil\router\Router;
 
 $fakeReq = new FakeHttpRequest();
 $fakeReq->withURL( '/foo' )->withMethod( 'GET' );
