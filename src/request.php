@@ -18,6 +18,9 @@ interface HttpRequest {
     /** Returns all HTTP request headers */
     function headers();
 
+    /** Returns the header with the given case-insensitive name, or `null` if not found. */
+    function header( $name );
+
     /** Returns the raw body. */
     function rawBody();
 
@@ -28,7 +31,7 @@ interface HttpRequest {
     function cookies();
 
     /**
-     * Returns the cookie value with the given key or `null` if not found.
+     * Returns the cookie value with the given case-insensitive key or `null` if not found.
      *
      * @param string $key Cookie key.
      */
@@ -99,6 +102,14 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
+    function header( $name ) {
+        if ( ! isset( $_SERVER ) ) {
+            return null;
+        }
+        return headerWithName( $name, $_SERVER );
+    }
+
+    /** @inheritDoc */
     function rawBody() {
         return \file_get_contents( 'php://input' );
     }
@@ -162,9 +173,9 @@ class RealHttpRequest implements HttpRequest {
 }
 
 
-function extractHeaders( array &$from ) {
-    $headers = [];
-    foreach ( $_SERVER as $key => $value ) {
+function extractHeaders( array &$array ) {
+    // Copy values and fix some keys
+    foreach ( $array as $key => $value ) {
         if ( \mb_substr( $key, 0, 5 ) === 'HTTP_' ) {
             $newKey = \mb_substr( $key, 5 ); // Remove "HTTP_"
             $newKey = \str_replace( '_', ' ', $newKey ); // Replace "_" with " "
@@ -175,20 +186,21 @@ function extractHeaders( array &$from ) {
             $headers[ 'Content-Type' ] = $value;
         } else if ( $key === 'CONTENT_LENGTH' ) {
             $headers[ 'Content-Length' ] = $value;
-        } else if ( $key === 'Authorization' ) {
+        } else {
             $headers[ $key ] = $value;
         }
     }
 
+    // Check for alternative Authorization headers
     if ( ! isset( $headers[ 'Authorization' ] ) ) {
         $key = 'Authorization';
-        if ( isset( $_SERVER[ 'REDIRECT_HTTP_AUTHORIZATION' ] ) ) {
-            $headers[ $key ] = $_SERVER[ 'REDIRECT_HTTP_AUTHORIZATION' ];
-        } else if ( isset( $_SERVER[ 'PHP_AUTH_USER' ] ) ) {
-            $pwd = isset( $_SERVER[ 'PHP_AUTH_PW' ] ) ? $_SERVER[ 'PHP_AUTH_PW' ] : '';
-            $headers[ $key ] = 'Basic ' . base64_encode( $_SERVER[ 'PHP_AUTH_USER' ] . ':' . $pwd );
-        } else if ( isset( $_SERVER[ 'PHP_AUTH_DIGEST' ] ) ) {
-            $headers[ $key ] = $_SERVER[ 'PHP_AUTH_DIGEST' ];
+        if ( isset( $array[ 'REDIRECT_HTTP_AUTHORIZATION' ] ) ) {
+            $headers[ $key ] = $array[ 'REDIRECT_HTTP_AUTHORIZATION' ];
+        } else if ( isset( $array[ 'PHP_AUTH_USER' ] ) ) {
+            $pwd = isset( $array[ 'PHP_AUTH_PW' ] ) ? $array[ 'PHP_AUTH_PW' ] : '';
+            $headers[ $key ] = 'Basic ' . base64_encode( $array[ 'PHP_AUTH_USER' ] . ':' . $pwd );
+        } else if ( isset( $array[ 'PHP_AUTH_DIGEST' ] ) ) {
+            $headers[ $key ] = $array[ 'PHP_AUTH_DIGEST' ];
         }
     }
 
@@ -196,6 +208,27 @@ function extractHeaders( array &$from ) {
 }
 
 
+function headerWithName( $name, array $array ) {
+    if ( isset( $array, $array[ $name ] ) ) {
+        return $array[ $name ];
+    }
+    $headers = extractHeaders( $array );
+    $name = \mb_strtolower( $name );
+    foreach ( $headers as $key => $value ) {
+        if ( \mb_strtolower( $key ) == $name ) {
+            return $value;
+        }
+    }
+    return null;
+}
+
+
+/**
+ * Extract cookies from the headers.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
 function extractCookies( array $headers ) {
     $cookies = [];
     foreach ( $headers as $key => $value ) {
@@ -287,6 +320,11 @@ class FakeHttpRequest implements HttpRequest {
     /** @inheritDoc */
     function headers() {
         return $this->_headers;
+    }
+
+    /** @inheritDoc */
+    function header( $name ) {
+        return headerWithName( $name, $this->_headers );
     }
 
     /** @inheritDoc */

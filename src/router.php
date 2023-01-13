@@ -1,38 +1,17 @@
 <?php
 namespace phputil\router;
 
-use RuntimeException;
-
 require_once 'request.php';
 require_once 'response.php';
 require_once 'mime.php';
 require_once 'entry.php';
 require_once 'regex.php';
+require_once 'http.php';
 
-// HTTP STATUS ----------------------------------------------------------------
+// STATUS ---------------------------------------------------------------------
 
 const STATUS_NOT_FOUND = 404;
 const STATUS_METHOD_NOT_ALLOWED = 405;
-
-// HEADERS --------------------------------------------------------------------
-
-const ACCEPT = 'Accept';
-const ACCEPT_ENCODING = 'Accept-Encoding';
-
-// UTILITIES ------------------------------------------------------------------
-
-function isHttpMethodValid( $method ) {
-    return \array_search( \mb_strtoupper( $method ), SUPPORTED_METHODS ) !== false;
-}
-
-function removeQualityValues( array &$input ) {
-    $new = [];
-    foreach ( $input as &$value ) {
-        $r = \explode( ';', \trim( $value ) );
-        $new []= $r[ 0 ];
-    }
-    return $new;
-}
 
 // ROUTER ---------------------------------------------------------------------
 

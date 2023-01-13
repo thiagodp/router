@@ -145,6 +145,10 @@ $app->route( '/tasks' )
 $app->listen();
 ```
 
+## Known Middlewares
+
+Did you create a useful middleware? Open an Issue to include it here.
+
 ## API
 
 _Soon_

@@ -1,6 +1,21 @@
 <?php
 namespace phputil\router;
 
+// ===> THIS FILE IS UNFINISHED <===
+
+const ACCEPT = 'Accept';
+const ACCEPT_ENCODING = 'Accept-Encoding';
+
+function removeQualityValues( array &$input ) {
+    $new = [];
+    foreach ( $input as &$value ) {
+        $r = \explode( ';', \trim( $value ) );
+        $new []= $r[ 0 ];
+    }
+    return $new;
+}
+
+
 class When {
 
     private $headers = [];

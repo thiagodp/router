@@ -1,6 +1,7 @@
 <?php
 
 use function phputil\router\extractCookies;
+use function phputil\router\headerWithName;
 use function phputil\router\removeQueries;
 
 describe( 'request', function() {
@@ -29,6 +30,19 @@ describe( 'request', function() {
             expect( $second )->toBe( 'foo' );
             expect( $firstV )->toBe( 'world' );
             expect( $secondV )->toBe( 'bar' );
+        } );
+
+    } );
+
+
+    describe( 'headerWithName', function() {
+
+        it( 'gets the header case-insentively', function() {
+            $r = headerWithName( 'content-type', [
+                'Cookie' => 'foo=bar',
+                'Content-Type' => 'application/json'
+            ] );
+            expect( $r )->toBe( 'application/json' );
         } );
 
     } );
