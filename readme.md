@@ -28,6 +28,7 @@ composer require phputil/router
     - _e.g._ `$app->get( '/', $middleware1, $middleware2, function( $req, $res ) { /*...*/ } );`
 - [✔] Request cookies
     - _e.g._ `$app->get('/', function( $req, $res ) { $res->send( $req->cookie('sid') ); } );`
+- [✔] _Extra_: Embedded CORS middleware.
 - [✔] _Extra_: Can mock HTTP requests for testing, without needing to run an HTTP server.
 - [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 

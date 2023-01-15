@@ -10,10 +10,37 @@ const HEADER_TO_VALUE_SEPARATOR = ': ';
 const HEADER_CONTENT_TYPE = 'Content-Type';
 const HEADER_LOCATION = 'Location';
 const HEADER_SET_COOKIE = 'Set-Cookie';
-const MIME_JSON_UTF8 = 'application/json;charset=utf8';
+
+// const MIME_HTML_UTF8 = 'text/html;charset=UTF-8';
+const MIME_JSON_UTF8 = 'application/json;charset=UTF-8';
+
+const SHORT_MIMES = [
+    'exe' => 'application/octet-stream',
+    'gif' => 'image/gif',
+    'gzip' => 'application/g-zip',
+    'html' => 'text/html',
+    'jpeg' => 'image/jpeg',
+    'jpg' => 'image/jpg',
+    'json' => 'application/json',
+    'mp3' => 'audio/mpeg',
+    'mp4' => 'video/mp4',
+    'ogg' => 'video/ogg',
+    'pdf' => 'application/pdf',
+    'png' => 'image/png',
+    'text' => 'text/plain',
+    'txt' => 'text/plain',
+    'xml' => 'application/xml',
+    'zip' => 'application/zip',
+];
 
 
 class HttpException extends \RuntimeException {
+}
+
+
+class SendFileOptions {
+    public $mime = '';
+    public $cache = false;
 }
 
 interface HttpResponse {
@@ -22,28 +49,30 @@ interface HttpResponse {
     function redirect( $statusCode, $path = null );
     function cookie( $name, $value, array $options = [] );
     function clearCookie( $name, array $options = [] );
+    function type( $mime );
     function send( $body );
+    function sendFile( $path, $options = [] );
     function json( $body );
-    function end();
+    function end( $clear = true );
 }
 
 class RealHttpResponse implements HttpResponse {
 
-    public $defaultContentType = 'Content-Type: text/html;charset=UTF-8';
-    private $statusCode = 200;
-    private $headers = [];
-    private $body = [];
+    protected $avoidOutput = false; // For testing purposes
+    protected $statusCode = 0; // 0 = not change the default
+    protected $headers = [];
+    protected $body = [];
+
+    public function __construct( $avoidOutput = false ) {
+        $this->avoidOutput = $avoidOutput;
+    }
 
     //
     // For testing/debugging purposes only
     //
 
     function dump() {
-        return [
-            'statusCode' => $this->statusCode,
-            'headers' => $this->headers,
-            'body' => $this->body
-        ];
+        return \get_object_vars( $this );
     }
 
     function dumpObject() {
@@ -99,11 +128,11 @@ class RealHttpResponse implements HttpResponse {
 
             $opt = [];
             foreach ( $options as $key => $value ) {
-                if ( array_key_exists( $key, $fromToKeys ) ) {
+                if ( \array_key_exists( $key, $fromToKeys ) ) {
                     $opt[ $fromToKeys[ $key ] ] = $value;
                     continue;
                 }
-                if ( array_search( $key, $fromToKeys ) === false ) {
+                if ( \array_search( $key, $fromToKeys ) === false ) {
                     continue;
                 }
                 $opt[ $key ] = $value;
@@ -139,16 +168,25 @@ class RealHttpResponse implements HttpResponse {
         return $this;
     }
 
+    function type( $mime, $useUTF8 = true ) {
+        $value = ( \mb_strlen( $mime ) <= 4 && isset( SHORT_MIMES[ $mime ] ) )
+            ? SHORT_MIMES[ $mime ] : $mime;
+        if ( $useUTF8 && \mb_strripos( $value, 'text/' ) === 0 && \mb_strripos( $value, 'charset' ) !== false ) {
+            $value .= ';charset=UTF-8';
+        }
+        return $this->setHeader( HEADER_CONTENT_TYPE, $value );
+    }
+
     function send( $body ) {
         if ( \is_array( $body ) || \is_object( $body ) ) {
             return $this->json( $body );
         }
         $this->body []= $body;
-        return $this->end();
+        return $this->end( false );
     }
 
     function json( $body ) {
-        $this->header( HEADER_CONTENT_TYPE, MIME_JSON_UTF8 );
+        $this->setHeader( HEADER_CONTENT_TYPE, MIME_JSON_UTF8 );
         if ( \is_array( $body ) || \is_object( $body ) ) {
             $result = \json_encode( $body );
             if ( $result === false ) {
@@ -158,26 +196,109 @@ class RealHttpResponse implements HttpResponse {
         } else {
             $this->body []= $body;
         }
-        return $this->end();
+        return $this->end( false );
     }
 
-    function end() {
-        \http_response_code( $this->statusCode );
-        $hasContentType = false;
-        foreach ( $this->headers as $header => $value ) {
-            if ( ! $hasContentType && mb_stripos( $header, 'Content-Type' ) === 0 ) {
-                $hasContentType = true;
-            }
-            @\header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
+    function sendFile( $path, $options = [] ) {
+
+        if ( ! \is_readable( $path ) ) {
+            throw new \RuntimeException( 'File not found or not readable.' );
         }
-        if ( ! $hasContentType ) {
-            @\header( $this->defaultContentType );
+
+        $mime = ( \is_array( $options ) && isset( $options[ 'mime' ] ) )
+            ? $options[ 'mime' ] : getFileMime( $path );
+        if ( ! isset( $mime ) ) {
+            throw new \RuntimeException( 'MIME type could not be defined. Please inform it.' );
         }
-        foreach ( $this->body as $body ) {
-            echo $body;
+
+        $fileSize = \filesize( $path );
+        $fileDisposition = 'attachment; path=' . \basename( $path );
+
+        $this->status( 200 );
+        $this->header( [
+            'Content-Type' => $mime,
+            'Content-Length' => $fileSize,
+            'Content-Disposition' => $fileDisposition,
+        ] );
+
+        // // No cache
+        // header('Cache-Control: must-revalidate');
+        // header('Expires: 0');
+        // header('Pragma: public');
+
+        $this->body = []; // Empty the body
+        $this->sendHeaders( true );
+
+        if ( $this->avoidOutput ) {
+            return $this->end();
         }
+
+        ob_clean();
+        flush();
+        readfile( $path );
+
+        return $this->end( true );
+    }
+
+    function end( $clear = true ) {
+        $this->sendHeaders( $clear );
+        $this->sendBody( $clear );
         return $this; // It should be kept
     }
+
+    protected function sendHeaders( $clear ) {
+        if ( $this->statusCode !== 0 ) {
+            \http_response_code( $this->statusCode );
+        }
+        foreach ( $this->headers as $header => $value ) {
+            @\header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
+        }
+        if ( $clear ) {
+            $this->headers = [];
+        }
+    }
+
+    protected function sendBody( $clear ) {
+        if ( ! $this->avoidOutput ) {
+            foreach ( $this->body as $body ) {
+                echo $body;
+            }
+        }
+        if ( $clear ) {
+            $this->body = [];
+        }
+    }
 }
+
+
+/**
+ * Fake HTTP response
+ */
+class FakeHttpResponse extends RealHttpResponse {
+
+    public function __construct() {
+        parent::__construct( $avoidOutput = true );
+    }
+
+}
+
+
+
+/**
+ * Returns the file MIME or null in case of error.
+ *
+ * @param string $path File path
+ * @return string
+ */
+function getFileMime( $path ) {
+    $finfo = finfo_open( FILEINFO_MIME_TYPE );
+    if ( $finfo === false ) {
+        return null;
+    }
+    $mime = finfo_file( $finfo, $path );
+    finfo_close( $finfo );
+    return $mime;
+}
+
 
 ?>

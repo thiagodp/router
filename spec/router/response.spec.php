@@ -8,7 +8,8 @@ describe( 'response', function() {
     $this->resp = null;
 
     beforeEach( function() {
-        $this->resp = new RealHttpResponse();
+        $avoidOutput = true;
+        $this->resp = new RealHttpResponse( $avoidOutput );
     } );
 
     describe( 'send', function() {
