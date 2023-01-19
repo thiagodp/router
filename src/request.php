@@ -24,6 +24,14 @@ interface HttpRequest {
     /** Returns the raw body. */
     function rawBody();
 
+    /**
+     * Returns the converted content as following:
+     *  - `x-form-urlencoded` is returned as an array;
+     *  - `application/json` is returned as a json object/array;
+     *  - Otherwise is returned as string.
+     */
+    function body();
+
     /** Returns the HTTP request method. */
     function method();
 
@@ -112,6 +120,11 @@ class RealHttpRequest implements HttpRequest {
     /** @inheritDoc */
     function rawBody() {
         return \file_get_contents( 'php://input' );
+    }
+
+    /** @inheritDoc */
+    function body() {
+        return analizeBody( $this->header( 'Content-Type' ), $this->rawBody() );
     }
 
     /** @inheritDoc */
@@ -252,6 +265,29 @@ function removeQueries( $url ) {
     return \mb_substr( $url, 0, $index );
 }
 
+
+function analizeBody( $contentType, $rawBody ) {
+    if ( $contentType === null ) {
+        return $rawBody;
+    }
+    list( $cType ) = \explode( ';', \mb_strtolower( $contentType ) ); // Explode to avoid to comparing the charset
+    if ( $cType === 'application/x-www-form-urlencoded' ) {
+        $data = [];
+        if ( \mb_parse_str( $rawBody, $data ) ) { // Success
+            return $data;
+        }
+        return $rawBody;
+    }
+    if ( $cType === 'application/json' ) {
+        $r = \json_decode( $rawBody );
+        if ( $r !== null ) { // Maybe success
+            return $r;
+        }
+        return ( $rawBody === 'null' ) ? $r : $rawBody;
+    }
+    return $rawBody;
+}
+
 /**
  * Extra, user-defined data.
  */
@@ -333,6 +369,11 @@ class FakeHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
+    function body() {
+        return $this->_rawBody;
+    }
+
+    /** @inheritDoc */
     function method() {
         return $this->_method;
     }
@@ -392,6 +433,10 @@ class FakeHttpRequest implements HttpRequest {
     function withRawBody( $rawBody ) {
         $this->_rawBody = $rawBody;
         return $this;
+    }
+
+    function withBody( $body ) {
+        return $this->withRawBody( $body );
     }
 
     function withMethod( $method ) {
