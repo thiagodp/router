@@ -1,3 +1,6 @@
+[![Version](https://poser.pugx.org/phputil/router/v?style=flat-square)](https://packagist.org/packages/phputil/router)
+[![License](https://poser.pugx.org/phputil/router/license?style=flat-square)](https://packagist.org/packages/phputil/router)
+
 # phputil/router
 
 > Express-like router for PHP
@@ -54,7 +57,7 @@ use \phputil\router\Router;
 $app = new Router();
 $app->get('/', function( $req, $res ) {
     $res->send( 'Hello World!' );
-} )
+} );
 $app->listen();
 ```
 
