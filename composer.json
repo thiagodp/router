@@ -2,6 +2,7 @@
     "name": "phputil/router",
     "description": "Express-like router for PHP",
     "type": "library",
+    "license": "MIT",
     "scripts": {
         "test": "kahlan",
         "test2": "kahlan --reporter=verbose",
@@ -12,7 +13,6 @@
     "require-dev": {
         "kahlan/kahlan": "^5.2"
     },
-    "license": "MIT",
     "autoload": {
         "psr-4": {
             "phputil\\router\\": "src/"

@@ -4,20 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d7fce81fa210ec4b782fc8afe4f66390",
-    "packages": [
+    "content-hash": "ac923ce2bf504b895468885c04b5259b",
+    "packages": [],
+    "packages-dev": [
         {
             "name": "kahlan/kahlan",
-            "version": "5.2.0",
+            "version": "5.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kahlan/kahlan.git",
-                "reference": "ff2449502f2ae9ee48d3555ce5d285505ab6375b"
+                "reference": "6f36295a8cfbe98df03262bd8c1ded4756db022a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kahlan/kahlan/zipball/ff2449502f2ae9ee48d3555ce5d285505ab6375b",
-                "reference": "ff2449502f2ae9ee48d3555ce5d285505ab6375b",
+                "url": "https://api.github.com/repos/kahlan/kahlan/zipball/6f36295a8cfbe98df03262bd8c1ded4756db022a",
+                "reference": "6f36295a8cfbe98df03262bd8c1ded4756db022a",
                 "shasum": ""
             },
             "require": {
@@ -60,12 +61,11 @@
             ],
             "support": {
                 "issues": "https://github.com/kahlan/kahlan/issues",
-                "source": "https://github.com/kahlan/kahlan/tree/5.2.0"
+                "source": "https://github.com/kahlan/kahlan/tree/5.2.2"
             },
-            "time": "2022-01-16T15:26:38+00:00"
+            "time": "2022-12-13T02:39:45+00:00"
         }
     ],
-    "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],

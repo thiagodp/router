@@ -33,7 +33,7 @@ composer require phputil/router
 - [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 
 
-**Notes about `phputil/router`**:
+**Some notes about `phputil/router`**:
 
 1. Unlike Express, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
 
@@ -41,12 +41,17 @@ composer require phputil/router
 
 ## Examples
 
+[See all the examples](https://github.com/thiagodp/router/tree/main/examples/)
+
+To help us with an example, just submit a Pull Request or open an Issue with the code.
+
 ### Hello World
 
 ```php
 require_once 'vendor/autoload.php';
+use \phputil\router\Router;
 
-$app = new \phputil\router\Router();
+$app = new Router();
 $app->get('/', function( $req, $res ) {
     $res->send( 'Hello World!' );
 } )
@@ -57,8 +62,9 @@ $app->listen();
 
 ```php
 require_once 'vendor/autoload.php';
+use \phputil\router\Router;
 
-$app = new \phputil\router\Router();
+$app = new Router();
 $app->route( '/hi' )
     ->get('/', function( $req, $res ) {
         $res->send( 'Hi, Anonymous' );
@@ -73,76 +79,22 @@ $app->listen();
 
 ```php
 require_once 'vendor/autoload.php';
+use \phputil\router\Router;
 
 $middlewareIsAdmin = function( $req, $res, &$stop ) {
     session_start();
     $isAdmin = isset( $_SESSION[ 'admin' ] ) && $_SESSION[ 'admin' ];
     if ( $isAdmin ) {
-        return; // Allowed
+        return; // Access allowed
     }
     $stop = true;
-    $res->status( 403 )->end(); // Forbidden
+    $res->status( 403 )->send( 'Admin only' ); // Forbidden
 };
 
-$app = new \phputil\router\Router();
+$app = new Router();
 $app->get( '/admin', $middlewareIsAdmin, function( $req, $res ) {
     $res->send( 'Hello, admin' );
 } );
-$app->listen();
-```
-
-### CRUD with JSON
-
-```php
-<?php
-require_once 'vendor/autoload.php';
-
-$tasks = [ // Some data for the example
-    ['id'=>1, 'what'=>'Buy beer'],
-    ['id'=>2, 'what'=>'Wash the dishes']
-];
-
-function generateId( $arrayCopy ) { // Just for the example
-    $last = end( $arrayCopy );
-    return isset( $last, $last['id'] ) ? 1 + $last['id'] : 1;
-}
-
-$app = new \phputil\router\Router();
-$app->route( '/tasks' )
-    ->get( '/', function( $req, $res ) use ( &$tasks ) {
-        $res->json( $tasks );
-    } )
-    ->post( '/', function( $req, $res ) use ( &$tasks ) {
-        $t = (array) json_encode( $req->rawBody() );
-        $t['id'] = generateId( $tasks );
-        $tasks []= $t;
-        $res->status( 201 )->send( $t['id'] ); // Created
-    } )
-    ->get( '/:id', function( $req, $res ) use ( &$tasks ) {
-        $key = array_search( $req->param( 'id' ), array_column( $tasks, 'id' ) );
-        if ( $key === false ) {
-            return $res->status( 404 )->send( 'Not Found' );
-        }
-        $res->json( $tasks[ $key ] );
-    } )
-    ->delete( '/:id', function( $req, $res ) use ( &$tasks ) {
-        $key = array_search( $req->param( 'id' ), array_column( $tasks, 'id' ) );
-        if ( $key === false ) {
-            return $res->status( 404 )->send( 'Not Found' );
-        }
-        unset( $tasks[ $key ] ); // Remove
-        $res->status( 204 )->end(); // No Content
-    } )
-    ->put( '/:id', function( $req, $res ) use ( &$tasks ) {
-        $key = array_search( $req->param( 'id' ), array_column( $tasks, 'id' ) );
-        if ( $key === false ) {
-            return $res->status( 404 )->send( 'Not Found' );
-        }
-        $t = (array) json_encode( $req->rawBody() );
-        $tasks[ $key ] = $t;
-        $res->end();
-    } );
-
 $app->listen();
 ```
 
@@ -152,7 +104,8 @@ Did you create a useful middleware? Open an Issue to include it here.
 
 ## API
 
-_Soon_
+**_Soon_**. Until it isn't available, try to use it like the [Express API](https://expressjs.com/pt-br/4x/api.html).
+
 
 ### Mocking an HTTP request
 
