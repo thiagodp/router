@@ -16,7 +16,10 @@
     "autoload": {
         "psr-4": {
             "phputil\\router\\": "src/"
-        }
+        },
+        "files": [
+            "src/cors.php"
+        ]
     },
     "authors": [
         {
