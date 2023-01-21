@@ -1,7 +1,7 @@
 <?php
 namespace phputil\router;
 
-require_once 'http-response.php';
+require_once 'real-http-response.php';
 
 /**
  * Fake HTTP response
