@@ -45,4 +45,45 @@ function compareMimes( array $desired, array $received ) {
     return false;
 }
 
+
+// ---
+
+// const MIME_HTML_UTF8 = 'text/html;charset=UTF-8';
+const MIME_JSON_UTF8 = 'application/json;charset=UTF-8';
+
+const SHORT_MIMES = [
+    'exe' => 'application/octet-stream',
+    'gif' => 'image/gif',
+    'gzip' => 'application/g-zip',
+    'html' => 'text/html',
+    'jpeg' => 'image/jpeg',
+    'jpg' => 'image/jpg',
+    'json' => 'application/json',
+    'mp3' => 'audio/mpeg',
+    'mp4' => 'video/mp4',
+    'ogg' => 'video/ogg',
+    'pdf' => 'application/pdf',
+    'png' => 'image/png',
+    'text' => 'text/plain',
+    'txt' => 'text/plain',
+    'xml' => 'application/xml',
+    'zip' => 'application/zip',
+];
+
+/**
+ * Returns the file MIME or null in case of error.
+ *
+ * @param string $path File path
+ * @return string
+ */
+function getFileMime( $path ) {
+    $finfo = finfo_open( FILEINFO_MIME_TYPE );
+    if ( $finfo === false ) {
+        return null;
+    }
+    $mime = finfo_file( $finfo, $path );
+    finfo_close( $finfo );
+    return $mime;
+}
+
 ?>

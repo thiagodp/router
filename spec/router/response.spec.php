@@ -1,5 +1,5 @@
 <?php
-require_once 'src/response.php';
+require_once 'src/real-http-response.php';
 
 use \phputil\router\RealHttpResponse;
 

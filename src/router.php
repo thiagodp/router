@@ -1,12 +1,12 @@
 <?php
 namespace phputil\router;
 
-require_once 'request.php';
-require_once 'response.php';
+require_once 'http.php';
+require_once 'http-request.php';
+require_once 'http-response.php';
 require_once 'mime.php';
 require_once 'entry.php';
 require_once 'regex.php';
-require_once 'http.php';
 
 // STATUS ---------------------------------------------------------------------
 

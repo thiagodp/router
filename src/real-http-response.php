@@ -1,60 +1,16 @@
 <?php
 namespace phputil\router;
 
+require_once 'http-response.php';
+require_once 'http-exception.php';
+require_once 'mime.php';
+require_once 'headers.php';
+
 const MSG_HEADER_VALUE_CANNOT_BE_NULL = 'Header value cannot be null.';
 const MSG_HEADER_KEY_MUST_BE_STRING = 'Header key must be a string.';
 const MSG_HEADER_PARAMETER_INVALID = 'Invalid header type. Accepted: string, array.';
 const MSG_JSON_ENCODING_ERROR = 'JSON encoding error.';
 
-const HEADER_TO_VALUE_SEPARATOR = ': ';
-const HEADER_CONTENT_TYPE = 'Content-Type';
-const HEADER_LOCATION = 'Location';
-const HEADER_SET_COOKIE = 'Set-Cookie';
-
-// const MIME_HTML_UTF8 = 'text/html;charset=UTF-8';
-const MIME_JSON_UTF8 = 'application/json;charset=UTF-8';
-
-const SHORT_MIMES = [
-    'exe' => 'application/octet-stream',
-    'gif' => 'image/gif',
-    'gzip' => 'application/g-zip',
-    'html' => 'text/html',
-    'jpeg' => 'image/jpeg',
-    'jpg' => 'image/jpg',
-    'json' => 'application/json',
-    'mp3' => 'audio/mpeg',
-    'mp4' => 'video/mp4',
-    'ogg' => 'video/ogg',
-    'pdf' => 'application/pdf',
-    'png' => 'image/png',
-    'text' => 'text/plain',
-    'txt' => 'text/plain',
-    'xml' => 'application/xml',
-    'zip' => 'application/zip',
-];
-
-
-class HttpException extends \RuntimeException {
-}
-
-
-class SendFileOptions {
-    public $mime = '';
-    public $cache = false;
-}
-
-interface HttpResponse {
-    function status( int $code );
-    function header( $header, $value );
-    function redirect( $statusCode, $path = null );
-    function cookie( $name, $value, array $options = [] );
-    function clearCookie( $name, array $options = [] );
-    function type( $mime );
-    function send( $body );
-    function sendFile( $path, $options = [] );
-    function json( $body );
-    function end( $clear = true );
-}
 
 class RealHttpResponse implements HttpResponse {
 
@@ -269,36 +225,5 @@ class RealHttpResponse implements HttpResponse {
         }
     }
 }
-
-
-/**
- * Fake HTTP response
- */
-class FakeHttpResponse extends RealHttpResponse {
-
-    public function __construct() {
-        parent::__construct( $avoidOutput = true );
-    }
-
-}
-
-
-
-/**
- * Returns the file MIME or null in case of error.
- *
- * @param string $path File path
- * @return string
- */
-function getFileMime( $path ) {
-    $finfo = finfo_open( FILEINFO_MIME_TYPE );
-    if ( $finfo === false ) {
-        return null;
-    }
-    $mime = finfo_file( $finfo, $path );
-    finfo_close( $finfo );
-    return $mime;
-}
-
 
 ?>

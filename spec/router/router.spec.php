@@ -1,5 +1,5 @@
 <?php
-require_once 'src/request.php';
+require_once 'src/fake-http-request.php';
 require_once 'src/router.php';
 
 use \phputil\router\FakeHttpRequest;
