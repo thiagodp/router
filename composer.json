@@ -6,12 +6,13 @@
     "scripts": {
         "test": "kahlan",
         "test2": "kahlan --reporter=verbose",
-        "cov": "kahlan --coverage"
-    },
-    "require": {
+        "cov": "kahlan --coverage",
+        "check": "phpstan analyze src",
+        "l1": "phpstan analyze src --level=1"
     },
     "require-dev": {
-        "kahlan/kahlan": "^5.2"
+        "kahlan/kahlan": "^5.2",
+        "phpstan/phpstan": "^1.9"
     },
     "autoload": {
         "psr-4": {

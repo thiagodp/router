@@ -29,8 +29,8 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
 
     // HTTP POST: $_POST and $_FILES works for both "application/x-www-form-urlencoded" and "multipart/form-data"
     if ( $httpMethod === 'POST' ) {
-        $hasPost = \isset( $_POST );
-        $hasFiles = \isset( $_FILES );
+        $hasPost = isset( $_POST );
+        $hasFiles = isset( $_FILES );
         if ( $hasPost ) {
             $result->data = $_POST; // copy
         }
@@ -61,7 +61,7 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
 
 
 // function arrayParam( &$params, $key, $preventInjection ) {
-//     if ( ! \isset( $params[ $key ] ) ) {
+//     if ( ! isset( $params[ $key ] ) ) {
 //         return null;
 //     }
 //     return $preventInjection
@@ -128,8 +128,8 @@ const DEFAULT_TEMP_PREFIX = 'tmp';
  * @param TempSaveOptions $options
  */
 function saveToTempFile( &$content, TempSaveOptions $options = new TempSaveOptions() ) {
-    $dir = \empty( $options->tempDir ) ? sys_get_temp_dir() : $options->tempDir;
-    $prefix = \empty( $options->tempPrefix ) ? DEFAULT_TEMP_PREFIX : $options->tempPrefix;
+    $dir = empty( $options->tempDir ) ? sys_get_temp_dir() : $options->tempDir;
+    $prefix = empty( $options->tempPrefix ) ? DEFAULT_TEMP_PREFIX : $options->tempPrefix;
     $fileName = @\tempnam( $dir, $prefix );
     if ( $fileName === false ) {
         return null;
