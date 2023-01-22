@@ -1,4 +1,5 @@
 [![Version](https://poser.pugx.org/phputil/router/v?style=flat-square)](https://packagist.org/packages/phputil/router)
+![Build](https://github.com/thiagodp/router/actions/workflows/ci.yml/badge.svg?style=flat)
 [![License](https://poser.pugx.org/phputil/router/license?style=flat-square)](https://packagist.org/packages/phputil/router)
 
 # phputil/router
