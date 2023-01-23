@@ -152,7 +152,7 @@ class GroupEntry extends RouteBasedEntry {
 
     function all( $route, callable ...$callbacks ) {
         foreach ( SUPPORTED_METHODS as $method ) {
-            $this->addEntry( $method, $route, $callbacks );
+            $this->addEntry( $route, $method, $callbacks );
         }
         return $this;
     }
