@@ -1,6 +1,6 @@
 {
     "name": "phputil/router",
-    "description": "Express-like router for PHP",
+    "description": "ExpressJS-like router for PHP",
     "type": "library",
     "license": "MIT",
     "scripts": {

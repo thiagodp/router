@@ -4,7 +4,7 @@
 
 # phputil/router
 
-> Express-like router for PHP
+> ExpressJS-like router for PHP
 
 _Warning: This router is under development. Do not use it in production yet._
 
@@ -13,6 +13,8 @@ _Warning: This router is under development. Do not use it in production yet._
 ```bash
 composer require phputil/router
 ```
+
+> Requires PHP 7.4+
 
 ## Examples
 
@@ -27,7 +29,7 @@ require_once 'vendor/autoload.php';
 use \phputil\router\Router;
 
 $app = new Router();
-$app->get('/', function( $req, $res ) {
+$app->get( '/', function( $req, $res ) {
     $res->send( 'Hello World!' );
 } );
 $app->listen();
@@ -41,10 +43,10 @@ use \phputil\router\Router;
 
 $app = new Router();
 $app->route( '/hi' )
-    ->get('/', function( $req, $res ) {
+    ->get( '/', function( $req, $res ) {
         $res->send( 'Hi, Anonymous' );
     } )
-    ->get('/:name', function( $req, $res ) {
+    ->get( '/:name', function( $req, $res ) {
         $res->send( 'Hi, ' . $req->param( 'name' ) );
     } );
 $app->listen();
@@ -101,14 +103,14 @@ $app->listen();
 
 **Some notes about `phputil/router`**:
 
-1. Unlike Express, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
+1. Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
 
-2. The library does not aim to cover the entire [Express API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
+2. The library does not aim to cover the entire [ExpressJS API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
 
 
 ## API
 
-**_Soon_**. Until it isn't available, try to use it like the [Express API](https://expressjs.com/pt-br/4x/api.html).
+**_Soon_**. Until it isn't available, try to use it like the [ExpressJS API](https://expressjs.com/pt-br/4x/api.html).
 
 
 ### Mocking an HTTP request
