@@ -9,6 +9,7 @@ require_once 'real-http-response.php';
 require_once 'mime.php';
 require_once 'entry.php';
 require_once 'regex.php';
+require_once 'router-options.php';
 
 // STATUS ---------------------------------------------------------------------
 
@@ -80,23 +81,27 @@ class Router extends GroupEntry {
     }
 
 
-    function listen( $rootURL = '', array $options = [] ) {
+    /**
+     * Analyzes the registered routes and the HTTP request for determining if they match and executing the given function.
+     *
+     * @param array|RouterOptions $options Options.
+     * @return array
+     */
+    function listen( $options = [] ) {
 
-        // Create a request object if it is not defined for testing purposes
-        $req = ( isset( $options[ 'req' ] ) &&
-            \is_object( $options[ 'req' ] ) &&
-            ( $options[ 'req' ] instanceof HttpRequest ) )
-            ? $options[ 'req' ] : new RealHttpRequest();
+        $opt = \is_array( $options )
+            ? ( ( new RouterOptions() )->fromArray( $options ) )
+            : ( ( \is_object( $options ) && $options instanceof RouterOptions ) ? $options : new RouterOptions() );
 
+        $req = ( \is_object( $opt->req ) && $opt->req instanceof HttpRequest ) ? $opt->req : new RealHttpRequest();
 
-        // Create a response object if it is not defined for testing purposes
-        $res = ( isset( $options[ 'res' ] ) &&
-            \is_object( $options[ 'res' ] ) &&
-            ( $options[ 'res' ] instanceof HttpResponse ) )
-            ? $options[ 'res' ] : new RealHttpResponse();
+        $res = ( \is_object( $opt->res ) && $opt->res instanceof HttpResponse ) ? $opt->res : new RealHttpResponse();
+
+        // var_dump( $opt, $req, $res );
+        // die();
 
         // Extract route path
-        $path = urldecode( str_replace( $rootURL, '', $req->urlWithoutQueries() ) );
+        $path = urldecode( str_replace( $opt->rootURL, '', $req->urlWithoutQueries() ) );
 
         // FIND
         $routeEntry = null;
