@@ -1,5 +1,5 @@
 <?php
-require_once 'src/regex.php';
+require_once __DIR__ . '/../../src/regex.php';
 
 use function phputil\router\extractVariables;
 

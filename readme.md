@@ -120,12 +120,13 @@ require_once 'vendor/autoload.php';
 use \phputil\router\FakeHttpRequest;
 use \phputil\router\Router;
 
+$app = new Router();
+$app->get( '/foo', function( $req, $res ) { $res->send( 'Called!' ); } );
+
 $fakeReq = new FakeHttpRequest();
 $fakeReq->withURL( '/foo' )->withMethod( 'GET' );
 
-$app = new Router();
-$app->get( '/foo', function( $req, $res ) { $res->send( 'Called!' ); } );
-$app->listen( [ 'req' => $fakeReq ] ); // It will use the fake request and call /foo
+$app->listen( [ 'req' => $fakeReq ] ); // It will use the fake request to call "/foo"
 ```
 
 ## License

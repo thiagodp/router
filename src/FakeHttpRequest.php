@@ -1,8 +1,9 @@
 <?php
 namespace phputil\router;
 
-require_once 'http-request.php';
-require_once 'request.php';
+require_once 'HttpRequest.php';
+require_once 'Request.php';
+require_once 'ExtraData.php';
 
 /**
  * Fake HTTP request

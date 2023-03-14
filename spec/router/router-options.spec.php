@@ -1,5 +1,5 @@
 <?php
-require_once 'src/router-options.php';
+require_once __DIR__ . '/../../src/RouterOptions.php';
 
 use phputil\router\RouterOptions;
 

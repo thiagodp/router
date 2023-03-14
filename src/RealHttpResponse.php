@@ -1,8 +1,8 @@
 <?php
 namespace phputil\router;
 
-require_once 'http-response.php';
-require_once 'http-exception.php';
+require_once 'HttpResponse.php';
+require_once 'HttpException.php';
 require_once 'mime.php';
 require_once 'headers.php';
 

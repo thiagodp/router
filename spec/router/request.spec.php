@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../src/request.php';
+
 use function phputil\router\analizeBody;
 use function phputil\router\extractCookies;
 use function phputil\router\headerWithName;

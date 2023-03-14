@@ -1,5 +1,5 @@
 <?php
-require_once 'src/mime.php';
+require_once __DIR__ . '/../../src/mime.php';
 
 use function phputil\router\compareMimes;
 

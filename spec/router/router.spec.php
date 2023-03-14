@@ -1,6 +1,6 @@
 <?php
-require_once 'src/fake-http-request.php';
-require_once 'src/router.php';
+require_once __DIR__ . '/../../src/FakeHttpRequest.php';
+require_once __DIR__ . '/../../src/Router.php';
 
 use \phputil\router\FakeHttpRequest;
 use \phputil\router\Router;

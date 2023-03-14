@@ -2,14 +2,18 @@
 namespace phputil\router;
 
 require_once 'http.php';
-require_once 'http-request.php';
-require_once 'real-http-request.php';
-require_once 'http-response.php';
-require_once 'real-http-response.php';
+require_once 'HttpRequest.php';
+require_once 'RealHttpRequest.php';
+require_once 'HttpResponse.php';
+require_once 'RealHttpResponse.php';
 require_once 'mime.php';
-require_once 'entry.php';
+require_once 'Entry.php';
+require_once 'GroupEntry.php';
+require_once 'HttpEntry.php';
+require_once 'RouteBasedEntry.php';
+require_once 'MiddlewareEntry.php';
 require_once 'regex.php';
-require_once 'router-options.php';
+require_once 'RouterOptions.php';
 
 // STATUS ---------------------------------------------------------------------
 
