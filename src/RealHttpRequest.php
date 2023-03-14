@@ -2,8 +2,8 @@
 namespace phputil\router;
 
 require_once 'HttpRequest.php';
-require_once 'Request.php';
 require_once 'ExtraData.php';
+require_once 'request.php';
 
 /**
  * Real HTTP request.
