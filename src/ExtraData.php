@@ -12,7 +12,7 @@ class ExtraData {
      * Sets a value to the given key. Chainable method.
      *
      * @param string|int $key
-     * @param any $value
+     * @param mixed $value
      * @return ExtraData
      */
     function set( $key, $value ) {

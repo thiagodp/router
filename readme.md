@@ -6,21 +6,17 @@
 
 > ExpressJS-like router for PHP
 
-_Warning: This router is under development. Do not use it in production yet._
-
 ## Installation
+
+> Requires PHP 7.4+
 
 ```bash
 composer require phputil/router
 ```
 
-> Requires PHP 7.4+
+👉 You may also like to install [phputil/cors](https://github.com/thiagodp/cors):
 
 ## Examples
-
-[See all the examples](https://github.com/thiagodp/router/tree/main/examples/)
-
-To help us with an example, just submit a Pull Request or open an Issue with the code.
 
 ### Hello World
 
@@ -35,19 +31,21 @@ $app->get( '/', function( $req, $res ) {
 $app->listen();
 ```
 
-### Saying Hi
+### Using a parameter
 
 ```php
 require_once 'vendor/autoload.php';
 use \phputil\router\Router;
 
 $app = new Router();
-$app->route( '/hi' )
-    ->get( '/', function( $req, $res ) {
+$app->get( '/', function( $req, $res ) {
         $res->send( 'Hi, Anonymous' );
     } )
     ->get( '/:name', function( $req, $res ) {
         $res->send( 'Hi, ' . $req->param( 'name' ) );
+    } )
+    ->get( '/json/:name', function( $req, $res ) {
+        $res->json( [ 'hi' => $req->param( 'name' ) ] );
     } );
 $app->listen();
 ```
@@ -75,11 +73,16 @@ $app->get( '/admin', $middlewareIsAdmin, function( $req, $res ) {
 $app->listen();
 ```
 
+
+[See all the examples](https://github.com/thiagodp/router/tree/main/examples/)
+
+> ℹ To help us with an example, just submit a Pull Request or open an Issue with the code.
+
 ## Known Middlewares
 
-- [phputil/cors](https://github.com/thiagodp/cors) - CORS Middleware
+1. [phputil/cors](https://github.com/thiagodp/cors) - CORS Middleware
 
-> Did you create a useful middleware? Open an Issue to include it here.
+> ℹ Did you create a useful middleware? Open an Issue to include it here.
 
 
 ## Features
