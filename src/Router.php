@@ -88,7 +88,7 @@ class Router extends GroupEntry {
     /**
      * Analyzes the registered routes and the HTTP request for determining if they match and executing the given function.
      *
-     * @param array|RouterOptions $options Options.
+     * @param array|RouterOptions $options Options. listen( [ 'rootURL' => dirname( $_SERVER[ 'PHP_SELF' ] ) ] )
      * @return array
      */
     function listen( $options = [] ) {

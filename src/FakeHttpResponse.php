@@ -9,7 +9,7 @@ require_once 'RealHttpResponse.php';
 class FakeHttpResponse extends RealHttpResponse {
 
     public function __construct() {
-        parent::__construct( $avoidOutput = true );
+        parent::__construct( $avoidOutput = true, $avoidClearing = true );
     }
 
 }

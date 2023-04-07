@@ -15,12 +15,15 @@ const MSG_JSON_ENCODING_ERROR = 'JSON encoding error.';
 class RealHttpResponse implements HttpResponse {
 
     protected $avoidOutput = false; // For testing purposes
+    protected $avoidClearing = false; // For testing purposes
+
     protected $statusCode = 0; // 0 = not change the default
     protected $headers = [];
     protected $body = [];
 
-    public function __construct( $avoidOutput = false ) {
+    public function __construct( $avoidOutput = false, $avoidClearing = false ) {
         $this->avoidOutput = $avoidOutput;
+        $this->avoidClearing = $avoidClearing;
     }
 
     //
@@ -39,6 +42,14 @@ class RealHttpResponse implements HttpResponse {
         return $code === $this->statusCode;
     }
 
+    public function hasHeader( $key ) {
+        return array_key_exists( $key, $this->headers );
+    }
+
+    public function getHeader( $key ) {
+        return array_key_exists( $key, $this->headers ) ? $this->headers[ $key ] : null;
+    }
+
     //
     // HttpResponse
     //
@@ -48,6 +59,12 @@ class RealHttpResponse implements HttpResponse {
         return $this;
     }
 
+    /**
+     * Sets a HTTP header.
+     *
+     * @param string $header HTTP header.
+     * @param string|int|float|bool|array $value Header value.
+     */
     function header( $header, $value = null ) {
         if ( is_string( $header ) ) {
             $this->setHeader( $header, $value );
@@ -209,7 +226,7 @@ class RealHttpResponse implements HttpResponse {
         foreach ( $this->headers as $header => $value ) {
             @\header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
         }
-        if ( $clear ) {
+        if ( $clear && ! $this->avoidClearing ) {
             $this->headers = [];
         }
     }
@@ -220,7 +237,7 @@ class RealHttpResponse implements HttpResponse {
                 echo $body;
             }
         }
-        if ( $clear ) {
+        if ( $clear && ! $this->avoidClearing ) {
             $this->body = [];
         }
     }
