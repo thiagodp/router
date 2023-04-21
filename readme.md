@@ -14,7 +14,7 @@
 composer require phputil/router
 ```
 
-👉 You may also like to install [phputil/cors](https://github.com/thiagodp/cors)
+👉 You may also like to install [phputil/cors](https://github.com/thiagodp/cors).
 
 ## Examples
 
@@ -78,13 +78,6 @@ $app->listen();
 
 > ℹ To help us with an example, just submit a Pull Request or open an Issue with the code.
 
-## Known Middlewares
-
-1. [phputil/cors](https://github.com/thiagodp/cors) - CORS Middleware
-
-> ℹ Did you create a useful middleware? Open an Issue to include it here.
-
-
 ## Features
 
 - [✔] Support to standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`, `HEAD`, `OPTIONS`) and `PATCH`.
@@ -100,7 +93,7 @@ $app->listen();
     - _e.g._ `$app->get( '/', $middleware1, $middleware2, function( $req, $res ) { /*...*/ } );`
 - [✔] Request cookies
     - _e.g._ `$app->get('/', function( $req, $res ) { $res->send( $req->cookie('sid') ); } );`
-- [✔] _Extra_: Can mock HTTP requests for testing, without needing to run an HTTP server.
+- [✔] _Extra_: Can mock HTTP requests for testing, without the need to running an HTTP server.
 - [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 
 
@@ -111,9 +104,34 @@ $app->listen();
 2. The library does not aim to cover the entire [ExpressJS API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
 
 
+## Known Middlewares
+
+- [phputil/cors](https://github.com/thiagodp/cors) - [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) Middleware
+
+> ℹ Did you create a useful middleware? Open an Issue for including it here.
+
+
 ## API
 
-**_UNDER CONSTRUCTION_**. Until it isn't fully available, try to use it like the [ExpressJS API](https://expressjs.com/pt-br/4x/api.html).
+👉 This documentation is **_UNDER CONSTRUCTION_**. Until it isn't fully available, try to use it like the [ExpressJS API](https://expressjs.com/pt-br/4x/api.html) or see the [examples](https://github.com/thiagodp/router/tree/main/examples).
+
+
+### Middleware
+
+In `phputil/router`, a middleware is a function that can:
+
+1. Perform some action (e.g., set response headers, verify permissions) before a route is evaluated.
+2. Stop the router, optionally setting a response.
+
+Syntax:
+```php
+function ( HttpRequest $req, HttpResponse $res, bool &$stop = false );
+```
+where:
+- `$req` allows to _get_ all the _request_ headers and data.
+- `$res` allows to _set_ all the _response_ headers and data.
+- `$stop` allows to stop the router, when set to `true`.
+
 
 ### Router
 
@@ -143,7 +161,7 @@ $app->listen( ( new RouterOptions() )->withRootURL( dirname( $_SERVER['PHP_SELF'
 
 ### RouterOptions
 
-Class that can hold the values used by the [Router](#router)'s [listen()](#listen).
+Class that can hold the values used by the [Router](#router)'s [listen()](#listen) method.
 
 #### withRootURL
 
