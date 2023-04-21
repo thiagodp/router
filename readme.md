@@ -16,6 +16,9 @@ composer require phputil/router
 
 👉 You may also like to install [phputil/cors](https://github.com/thiagodp/cors).
 
+
+**Note**: Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server).
+
 ## Examples
 
 ### Hello World
@@ -31,7 +34,7 @@ $app->get( '/', function( $req, $res ) {
 $app->listen();
 ```
 
-### Using a parameter
+### Using parameters
 
 ```php
 require_once 'vendor/autoload.php';
@@ -97,13 +100,6 @@ $app->listen();
 - [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 
 
-**Some notes about `phputil/router`**:
-
-1. Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, Apache, Nginx or [http-server](https://www.npmjs.com/package/http-server).
-
-2. The library does not aim to cover the entire [ExpressJS API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
-
-
 ## Known Middlewares
 
 - [phputil/cors](https://github.com/thiagodp/cors) - [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) Middleware
@@ -113,7 +109,17 @@ $app->listen();
 
 ## API
 
-👉 This documentation is **_UNDER CONSTRUCTION_**. Until it isn't fully available, try to use it like the [ExpressJS API](https://expressjs.com/pt-br/4x/api.html) or see the [examples](https://github.com/thiagodp/router/tree/main/examples).
+Notes:
+- This documentation is **_UNDER CONSTRUCTION_**. Until it isn't fully available, try to use it like the [ExpressJS API](https://expressjs.com/pt-br/4x/api.html) or see the [examples](https://github.com/thiagodp/router/tree/main/examples).
+
+- This library does not aim to cover the entire [ExpressJS API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
+
+Types:
+- [Middleware](#middleware)
+- [Router](#router)
+- [RouterOptions](#routeroptions)
+- HttpRequest ⏳ _soon_
+- HttpResponse ⏳ _soon_
 
 
 ### Middleware
@@ -125,7 +131,7 @@ In `phputil/router`, a middleware is a function that can:
 
 Syntax:
 ```php
-function ( HttpRequest $req, HttpResponse $res, bool &$stop = false );
+function ( HttpRequest $req, HttpResponse $res, bool &$stop = false )
 ```
 where:
 - `$req` allows to _get_ all the _request_ headers and data.
@@ -135,11 +141,133 @@ where:
 
 ### Router
 
-...
+Class that represents a router.
+
+#### get
+
+Method that deals with a `GET` HTTP request.
+
+```php
+function get( string $route, callable ...$callbacks )
+```
+where:
+- `$route` is a route (path).
+- `$callbacks` can receive zero or more [middlewares](#middleware) and one route handler - that must be the last function.
+
+A route handler has the following syntax:
+```php
+function ( HttpRequest $req, HttpResponse $res )
+```
+where:
+- `$req` allows to _get_ all the _request_ headers and data.
+- `$res` allows to _set_ all the _response_ headers and data.
+
+Examples:
+```php
+use \phputil\router\HttpRequest;
+use \phputil\router\HttpResponse;
+
+$app->
+    get( '/hello', function( HttpRequest $req, HttpResponse $res ) {
+        $res->send( 'Hello!' );
+    } )
+    get( '/world',
+        function( HttpRequest $req, HttpResponse $res, bool &$stop ) { // Middleware
+            if ( $req->header( 'Origin' ) === 'http://localhost' ) {
+                $res->status( 200 )->send( 'World!' );
+                $stop = true;
+            }
+        },
+        function( HttpRequest $req, HttpResponse $res ) { // Route handler
+            $res->status( 400 )->send( 'Error: not in http://localhost :(' );
+        }
+    );
+```
+
+
+#### post
+
+Method that deals with a `POST` HTTP request. Same syntax as [get](#get)'s.
+
+#### put
+
+Method that deals with a `PUT` HTTP request. Same syntax as [get](#get)'s.
+
+#### delete
+
+Method that deals with a `DELETE` HTTP request. Same syntax as [get](#get)'s.
+
+#### head
+
+Method that deals with a `HEAD` HTTP request. Same syntax as [get](#get)'s.
+
+#### option
+
+Method that deals with a `OPTION` HTTP request. Same syntax as [get](#get)'s.
+
+#### patch
+
+Method that deals with a `PATCH` HTTP request. Same syntax as [get](#get)'s.
+
+#### all
+
+Method that deals with any HTTP request. Same syntax as [get](#get)'s.
+
+#### group
+
+Alias to the method [route](#route).
+
+#### route
+
+Method that adds a route group, where you can register one or more HTTP method handlers.
+
+Example:
+```php
+$app->
+    route( '/employees' )
+        ->get( '/emails', function( $req, $res ) { /* GET /employees/emails  */ } )
+        ->get( '/phone-numbers', function( $req, $res ) { /* GET /employees/phone-numbers */ } )
+        ->post( '/children', function( $req, $res ) { /* POST /employees/children */ } )
+        ->end() // Finishes the group and back to "/"
+    ->get( '/customers', function( $req, $res ) { /* GET /customers */ } )
+    ;
+```
+
+#### end
+
+Method that finishes a route group and returns to the group parent.
+
+Example:
+```php
+$app->
+    route( '/products' )
+        ->get( '/colors', function( $req, $res ) { /* GET /products/colors  */ } )
+        ->route( '/suppliers' )
+            ->get( '/emails', function( $req, $res ) { /* GET /products/suppliers/emails */ } )
+            ->end() // Finishes "/suppliers" and back to "/products"
+        ->get( '/sizes', function( $req, $res ) { /* GET /products/sizes  */ } )
+        ->end() // Finishes "/products" and back to "/"
+    ->get( '/sales', function( $req, $res ) { /* GET /sales  */ } )
+    ;
+```
+
+#### use
+
+Method that adds a [middleware](#middleware) to be evaluated before the routes declared after it.
+
+Example:
+```php
+$app
+    ->use( $myMiddlewareFunction )
+    ->get( '/hello', $sayHelloFunction ); // Executes after the middleware
+```
 
 #### listen
+
+Method that executes the router.
+
 ```php
-listen( array|RouterOptions $options = [] ): void
+function listen( array|RouterOptions $options = [] ): void
 ```
 Options are:
 - `rootURL` is a string that sets the root URL. Example: `dirname( $_SERVER['PHP_SELF'] )`. By default it is `''`.
@@ -158,6 +286,7 @@ use phputil\router\RouterOptions;
 // Sets the 'rootURL' to where the index.php is located.
 $app->listen( ( new RouterOptions() )->withRootURL( dirname( $_SERVER['PHP_SELF'] ) ) );
 ```
+
 
 ### RouterOptions
 
@@ -180,6 +309,17 @@ withReq( HttpRequest $req ): RouterOptions
 ```php
 withRes( HttpResponse $res ): RouterOptions
 ```
+
+
+### HttpRequest
+
+> Soon
+
+
+### HttpResponse
+
+> Soon
+
 
 ### Mocking an HTTP request
 
