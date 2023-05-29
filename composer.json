@@ -10,6 +10,12 @@
         "check": "phpstan analyze src",
         "l1": "phpstan analyze src --level=1"
     },
+    "require": {
+        "php": ">=7.4",
+        "ext-mbstring": "*",
+        "ext-json": "*",
+        "ext-pcre": "*"
+    },
     "require-dev": {
         "kahlan/kahlan": "^5.2",
         "phpstan/phpstan": "^1.9"

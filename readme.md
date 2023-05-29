@@ -6,6 +6,10 @@
 
 > ExpressJS-like router for PHP
 
+- No third-party dependencies
+- Unit-tested
+- Mockable - it's easy to create automated tests for your API
+
 ## Installation
 
 > Requires PHP 7.4+
@@ -18,7 +22,7 @@ composer require phputil/router
 
 ### Notes
 
-- Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server).
+- Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server). See [Server Configuration](server.md) for more information.
 - If you are using Apache or Nginx, you may need to inform the `rootURL` parameter when calling `listen()`. Example:
     ```php
     // Sets the 'rootURL' to where the index.php is located.
