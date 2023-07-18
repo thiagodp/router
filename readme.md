@@ -149,7 +149,7 @@ where:
 
 ### Router
 
-Class that represents a router.
+> Class that represents a router.
 
 #### get
 
@@ -193,7 +193,6 @@ $app->
         }
     );
 ```
-
 
 #### post
 
@@ -300,7 +299,7 @@ $app->listen( ( new RouterOptions() )->withRootURL( dirname( $_SERVER['PHP_SELF'
 
 ### RouterOptions
 
-Class that can hold the values used by the [Router](#router)'s [listen()](#listen) method.
+> Options for the [Router](#router)'s [listen()](#listen) method.
 
 #### withRootURL
 
@@ -323,7 +322,7 @@ withRes( HttpResponse $res ): RouterOptions
 
 ### HttpRequest
 
->> Interface that represents an HTTP request.
+> Interface that represents an HTTP request.
 
 API:
 
@@ -430,7 +429,9 @@ class ExtraData {
 
 ### HttpResponse
 
-HTTP response. Most of its methods are chainable, that is, you can call them in a sequence. Example:
+> Interface that represents an HTTP response.
+
+Most of its methods are chainable, that is, you can call them in a sequence. Example:
 ```php
 $response->status( 201 )->send( 'Saved successfully.' );
 ```
