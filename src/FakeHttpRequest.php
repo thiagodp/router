@@ -20,32 +20,32 @@ class FakeHttpRequest implements HttpRequest {
     private $_extra = null;
 
     /** @inheritDoc */
-    function url() {
+    function url(): ?string {
         return $this->_url;
     }
 
     /** @inheritDoc */
-    function urlWithoutQueries() {
+    function urlWithoutQueries(): ?string {
         return removeQueries( $this->url() );
     }
 
     /** @inheritDoc */
-    function queries() {
+    function queries(): array {
         return $this->_queries;
     }
 
     /** @inheritDoc */
-    function headers() {
+    function headers(): array {
         return $this->_headers;
     }
 
     /** @inheritDoc */
-    function header( $name ) {
+    function header( $name ): ?string {
         return headerWithName( $name, $this->_headers );
     }
 
     /** @inheritDoc */
-    function rawBody() {
+    function rawBody(): ?string {
         return $this->_rawBody;
     }
 
@@ -55,85 +55,88 @@ class FakeHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function method() {
+    function method(): ?string {
         return $this->_method;
     }
 
     /** @inheritDoc */
-    function cookies() {
+    function cookies(): array {
         return $this->_cookies;
     }
 
     /** @inheritDoc */
-    function cookie( $key ) {
+    function cookie( $key ): ?string {
         return isset( $this->_cookies[ $key ] ) ? $this->_cookies[ $key ] : null;
     }
 
     /** @inheritDoc */
-    function param( $name ) {
+    function param( $name ): ?string {
         return isset( $this->_params[ $name ] ) ? $this->_params[ $name ] : null;
     }
 
     /** @inheritDoc */
-    function params() {
+    function params(): array {
         return $this->_params;
     }
 
     /** @inheritDoc */
-    function extra() {
+    function extra(): ExtraData {
         if ( $this->_extra === null ) {
             $this->_extra = new ExtraData();
         }
         return $this->_extra;
     }
 
+    /** @inheritDoc */
+    function withParams( array $params ): HttpRequest {
+        $this->_params = $params;
+        return $this;
+    }
+
     //
     // Extra, build methods
     //
 
-    function withUrl( $url ) {
+    function withUrl( $url ): HttpRequest {
         $this->_url = $url;
         return $this;
     }
 
-    function withQueries( array $queries ) {
+    function withQueries( array $queries ): HttpRequest {
         $this->_queries = $queries;
         return $this;
     }
 
-    function withHeaders( array $headers ) {
+    function withHeaders( array $headers ): HttpRequest {
         $this->_headers = $headers;
         return $this;
     }
 
-    function withHeader( $key, $value ) {
+    function withHeader( $key, $value ): HttpRequest {
         $this->_headers[ $key ] = $value;
         return $this;
     }
 
-    function withRawBody( $rawBody ) {
+    function withRawBody( $rawBody ): HttpRequest {
         $this->_rawBody = $rawBody;
         return $this;
     }
 
-    function withBody( $body ) {
+    function withBody( $body ): HttpRequest {
         return $this->withRawBody( $body );
     }
 
-    function withMethod( $method ) {
+    function withMethod( $method ): HttpRequest {
         $this->_method = $method;
         return $this;
     }
 
-    function withCookies( array $cookies ) {
+    function withCookies( array $cookies ): HttpRequest {
         $this->_cookies = $cookies;
         return $this;
     }
 
-    /** @inheritDoc */
-    function withParams( array $params ) {
-        $this->_params = $params;
-    }
+
 
 }
 

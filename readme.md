@@ -119,25 +119,23 @@ $app->listen();
 
 ## API
 
-Notes:
-- This documentation is **_UNDER CONSTRUCTION_**. Until it isn't fully available, try to use it like the [ExpressJS API](https://expressjs.com/pt-br/4x/api.html) or see the [examples](https://github.com/thiagodp/router/tree/main/examples).
-
-- This library does not aim to cover the entire [ExpressJS API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
+This library does not aim to cover the entire [ExpressJS API](https://expressjs.com/en/api.html). However, feel free to contribute to this project and add more features.
 
 Types:
 - [Middleware](#middleware)
 - [Router](#router)
 - [RouterOptions](#routeroptions)
-- HttpRequest ⏳ _soon_
-- HttpResponse ⏳ _soon_
+- [HttpRequest](#httprequest)
+- [ExtraData](#extradata)
+- [HttpResponse](#httpresponse)
 
 
 ### Middleware
 
-In `phputil/router`, a middleware is a function that can:
+In `phputil/router`, a middleware is a function that:
 
-1. Perform some action (e.g., set response headers, verify permissions) before a route is evaluated.
-2. Stop the router, optionally setting a response.
+1. Perform some action (e.g., set response headers, verify permissions) _before_ a route is evaluated.
+2. Can stop the router, optionally setting a response.
 
 Syntax:
 ```php
@@ -162,7 +160,7 @@ function get( string $route, callable ...$callbacks )
 ```
 where:
 - `$route` is a route (path).
-- `$callbacks` can receive zero or more [middlewares](#middleware) and one route handler - that must be the last function.
+- `$callbacks` can receive none, one or more [middleware](#middleware) functions and one route handler - which must be the last function.
 
 A route handler has the following syntax:
 ```php
@@ -182,13 +180,15 @@ $app->
         $res->send( 'Hello!' );
     } )
     get( '/world',
-        function( HttpRequest $req, HttpResponse $res, bool &$stop ) { // Middleware
+        // Middleware
+        function( HttpRequest $req, HttpResponse $res, bool &$stop ) {
             if ( $req->header( 'Origin' ) === 'http://localhost' ) {
                 $res->status( 200 )->send( 'World!' );
                 $stop = true;
             }
         },
-        function( HttpRequest $req, HttpResponse $res ) { // Route handler
+        // Route handler
+        function( HttpRequest $req, HttpResponse $res ) {
             $res->status( 400 )->send( 'Error: not in http://localhost :(' );
         }
     );
@@ -323,13 +323,218 @@ withRes( HttpResponse $res ): RouterOptions
 
 ### HttpRequest
 
-> Soon
+>> Interface that represents an HTTP request.
+
+API:
+
+```php
+interface HttpRequest {
+
+    /** Returns the current URL or `null` on failure. */
+    function url(): ?string;
+
+    /** Returns the current URL without any queries. E.g. `/foo?bar=10` -> `/foo` */
+    function urlWithoutQueries(): ?string;
+
+    /** Returns the URL queries. E.g. `/foo?bar=10&zoo=A` -> `['bar'=>'10', 'zoo'=>'A']` */
+    function queries(): array;
+
+    /** Returns all HTTP request headers */
+    function headers(): array;
+
+    /** Returns the header with the given case-insensitive name, or `null` if not found. */
+    function header( $name ): ?string;
+
+    /** Returns the raw body or `null` on failure. */
+    function rawBody(): ?string;
+
+    /**
+     * Returns the converted content, depending on the `Content-Type` header:
+     *   - For `x-www-form-urlencoded`, it returns an `array`;
+     *   - For `application/json`, it returns an `object` or an `array` (depending on the content).
+     *   - Otherwise it returns a `string`, or `null` on failure.
+     */
+    function body();
+
+    /** Returns the HTTP request method or `null` on failure. */
+    function method(): ?string;
+
+    /** Returns all cookies as an array (map). */
+    function cookies(): array;
+
+    /**
+     * Returns the cookie value with the given case-insensitive key or `null` if not found.
+     *
+     * @param string $key Cookie key.
+     * @return string|null
+     */
+    function cookie( $key ): ?string;
+
+    /**
+     * Returns a URL query or route parameter with the given name (key),
+     * or `null` when the given name is not found.
+     *
+     * @param string $name Parameter name.
+     * @return string
+     */
+    function param( $name ): ?string;
+
+    /**
+     * Returns all the URL queries and route parameters as an array (map).
+     * @return array
+     */
+    function params(): array;
+
+    /**
+     * Returns extra, user-configurable data.
+     * @return ExtraData
+     */
+    function extra(): ExtraData;
+
+}
+
+```
+
+
+### ExtraData
+
+> Extra, user-defined data.
+
+```php
+class ExtraData {
+
+    /**
+     * Sets a value to the given key. Chainable method.
+     *
+     * @param string|int $key
+     * @param mixed $value
+     * @return ExtraData
+     */
+    function set( $key, $value ): ExtraData;
+
+    /**
+     * Returns the value for the given key, or null otherwise.
+     * @param string|int $key
+     * @return mixed
+     */
+    function get( $key );
+
+    /**
+     * Returns the keys and values as an array.
+     */
+    function toArray(): array;
+
+}
+```
 
 
 ### HttpResponse
 
-> Soon
+HTTP response. Most of its methods are chainable, that is, you can call them in a sequence. Example:
+```php
+$response->status( 201 )->send( 'Saved successfully.' );
+```
 
+API:
+```php
+interface HttpResponse {
+
+    /**
+     * Sets the HTTP status code.
+     *
+     * @param int code HTTP status code.
+     * @return HttpResponse
+     */
+    function status( int $code ): HttpResponse;
+
+    /**
+     * Sets an HTTP header.
+     *
+     * @param string $header HTTP header.
+     * @param string|int|float|bool|array $value Header value.
+     * @return HttpResponse
+     */
+    function header( string $header, $value ): HttpResponse;
+
+    /**
+     * Sets a redirect response.
+     *
+     * @param int statusCode HTTP status code.
+     * @param string|null path Path.
+     * @return HttpResponse
+     */
+    function redirect( int $statusCode, $path = null ): HttpResponse;
+
+    /**
+     * Sets a cookie.
+     *
+     * @param string name Name (key)
+     * @param string value Value.
+     * @param array options Optional map with the following options:
+     *  - `domain`: string
+     *  - `path`: string
+     *  - `httpOnly`: true|1
+     *  - `secure`: true|1
+     *  - `maxAge`: int
+     *  - `expires`: string
+     *  - `sameSite`: true|1
+     * @return HttpResponse
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies for options' meanings.
+     */
+    function cookie( string $name, string $value, array $options = [] ): HttpResponse;
+
+    /**
+     * Clears a cookie with the given name (key).
+     *
+     * @param string name Name (key)
+     * @param array options Optional map with the same options as #cookie()'s.
+     * @return HttpResponse
+     */
+    function clearCookie( string $name, array $options = [] ): HttpResponse;
+
+    /**
+     * Sets the `Content-Type` header with the given MIME type.
+     *
+     * @param string mime MIME type.
+     * @return HttpResponse
+     */
+    function type( string $mime ): HttpResponse;
+
+    /**
+     * Sends the given HTTP response body.
+     *
+     * @param mixed body Response body.
+     * @return HttpResponse
+     */
+    function send( $body ): HttpResponse;
+
+    /**
+     * Sends a file based on its path.
+     *
+     * @param string path File path
+     * @param array options Optional map with the options:
+     *  - `mime`: string - MIME type, such as `application/pdf`.
+     * @return HttpResponse
+     */
+    function sendFile( string $path, array $options = [] ): HttpResponse;
+
+    /**
+     * Send the given content as JSON, also setting the needed headers.
+     *
+     * @param mixed body Content to send as JSON.
+     * @return HttpResponse
+     */
+    function json( $body ): HttpResponse;
+
+    /**
+     * Ends the HTTP response.
+     *
+     * @param bool clear If it is desired to clear the headers and the body after sending them. It defaults to `true`.
+     */
+    function end( $clear = true ): HttpResponse;
+}
+```
 
 ### Mocking an HTTP request
 

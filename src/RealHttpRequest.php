@@ -15,20 +15,20 @@ class RealHttpRequest implements HttpRequest {
     private $_extra = null;
 
     /** @inheritDoc */
-    function url() {
+    function url(): ?string {
         if ( ! isset( $_SERVER, $_SERVER[ 'REQUEST_URI' ] ) ) {
-            return '';
+            return null;
         }
         return $_SERVER[ 'REQUEST_URI' ];
     }
 
     /** @inheritDoc */
-    function urlWithoutQueries() {
+    function urlWithoutQueries(): ?string {
         return removeQueries( $this->url() );
     }
 
     /** @inheritDoc */
-    function queries() {
+    function queries(): array {
         if ( ! isset( $_GET ) ) {
             return [];
         }
@@ -36,7 +36,7 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function headers() {
+    function headers(): array {
         if ( ! isset( $_SERVER ) ) {
             return [];
         }
@@ -44,7 +44,7 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function header( $name ) {
+    function header( $name ): ?string {
         if ( ! isset( $_SERVER ) ) {
             return null;
         }
@@ -52,8 +52,9 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function rawBody() {
-        return \file_get_contents( 'php://input' );
+    function rawBody(): ?string {
+        $content = \file_get_contents( 'php://input' );
+        return $content === false ? null : $content;
     }
 
     /** @inheritDoc */
@@ -62,15 +63,15 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function method() {
+    function method(): ?string {
         if ( ! isset( $_SERVER, $_SERVER[ 'REQUEST_METHOD' ] ) ) {
-            return '';
+            return null;
         }
         return $_SERVER[ 'REQUEST_METHOD' ];
     }
 
     /** @inheritDoc */
-    function cookies() {
+    function cookies(): array {
         if ( isset( $_COOKIE ) ) {
             return $_COOKIE;
         }
@@ -82,13 +83,13 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function cookie( $key ) {
+    function cookie( $key ): ?string {
         $cookies = $this->cookies();
         return isset( $cookies[ $key ] ) ? $cookies[ $key ] : null;
     }
 
     /** @inheritDoc */
-    function param( $name ) {
+    function param( $name ): ?string {
         if ( isset( $_GET[ $name ] ) ) {
             return urldecode( $_GET[ $name ] );
         }
@@ -99,13 +100,13 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function params() {
+    function params(): array {
         return $this->_params;
     }
 
 
     /** @inheritDoc */
-    function extra() {
+    function extra(): ExtraData {
         if ( $this->_extra === null ) {
             $this->_extra = new ExtraData();
         }
@@ -113,8 +114,9 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function withParams( array $params ) {
+    function withParams( array $params ): HttpRequest {
         $this->_params = $params;
+        return $this;
     }
 
 }

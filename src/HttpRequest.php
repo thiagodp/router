@@ -6,68 +6,71 @@ namespace phputil\router;
  */
 interface HttpRequest {
 
-    /** Returns the current URL. */
-    function url();
+    /** Returns the current URL or `null` on failure. */
+    function url(): ?string;
 
     /** Returns the current URL without any queries. E.g. `/foo?bar=10` -> `/foo` */
-    function urlWithoutQueries();
+    function urlWithoutQueries(): ?string;
 
     /** Returns the URL queries. E.g. `/foo?bar=10&zoo=A` -> `['bar'=>'10', 'zoo'=>'A']` */
-    function queries();
+    function queries(): array;
 
     /** Returns all HTTP request headers */
-    function headers();
+    function headers(): array;
 
     /** Returns the header with the given case-insensitive name, or `null` if not found. */
-    function header( $name );
+    function header( $name ): ?string;
 
-    /** Returns the raw body. */
-    function rawBody();
+    /** Returns the raw body or `null` on failure. */
+    function rawBody(): ?string;
 
     /**
-     * Returns the converted content as following:
-     *  - `x-form-urlencoded` is returned as an array;
-     *  - `application/json` is returned as a json object/array;
-     *  - Otherwise is returned as string.
+     * Returns the converted content, depending on the `Content-Type` header:
+     *   - For `x-www-form-urlencoded`, it returns an `array`;
+     *   - For `application/json`, it returns an `object` or an `array` (depending on the content).
+     *   - Otherwise it returns a `string`, or `null` on failure.
      */
     function body();
 
-    /** Returns the HTTP request method. */
-    function method();
+    /** Returns the HTTP request method or `null` on failure. */
+    function method(): ?string;
 
     /** Returns all cookies as an array (map). */
-    function cookies();
+    function cookies(): array;
 
     /**
      * Returns the cookie value with the given case-insensitive key or `null` if not found.
      *
      * @param string $key Cookie key.
+     * @return string|null
      */
-    function cookie( $key );
+    function cookie( $key ): ?string;
 
     /**
-     * Returns the parameter value with the given name.
+     * Returns a URL query or route parameter with the given name (key),
+     * or `null` when the given name is not found.
      *
      * @param string $name Parameter name.
+     * @return string
      */
-    function param( $name );
+    function param( $name ): ?string;
 
     /**
-     * Return all params as an array (map).
+     * Returns all the URL queries and route parameters as an array (map).
+     * @return array
      */
-    function params();
+    function params(): array;
 
     /**
      * Returns extra, user-configurable data.
-     * @return array
+     * @return ExtraData
      */
-    function extra();
-
+    function extra(): ExtraData;
 
     /**
      * Set the params. Do NOT use it directly.
      */
-    function withParams( array $params );
+    function withParams( array $params ): HttpRequest;
 }
 
 ?>

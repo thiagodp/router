@@ -76,6 +76,9 @@ function extractCookies( array $headers ) {
 
 
 function removeQueries( $url ) {
+    if ( null === $url ) {
+        return null;
+    }
     $index = \mb_strpos( $url, '?' );
     if ( $index === false ) {
         return $url;

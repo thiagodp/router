@@ -54,18 +54,14 @@ class RealHttpResponse implements HttpResponse {
     // HttpResponse
     //
 
-    function status( $code ) {
+    /** @inheritDoc */
+    function status( $code ): HttpResponse {
         $this->statusCode = $code;
         return $this;
     }
 
-    /**
-     * Sets a HTTP header.
-     *
-     * @param string $header HTTP header.
-     * @param string|int|float|bool|array $value Header value.
-     */
-    function header( $header, $value = null ) {
+    /** @inheritDoc */
+    function header( $header, $value = null ): HttpResponse {
         if ( is_string( $header ) ) {
             $this->setHeader( $header, $value );
         } else if ( is_array( $header ) ) {
@@ -78,7 +74,8 @@ class RealHttpResponse implements HttpResponse {
         return $this;
     }
 
-    function redirect( $statusCode, $path = null ) {
+    /** @inheritDoc */
+    function redirect( $statusCode, $path = null ): HttpResponse {
         $this->status( $statusCode );
         if ( ! \is_null( $path ) ) {
             $this->setHeader( HEADER_LOCATION, $path );
@@ -86,7 +83,8 @@ class RealHttpResponse implements HttpResponse {
         return $this;
     }
 
-    function cookie( $name, $value, array $options = [] ) {
+    /** @inheritDoc */
+    function cookie( string $name, string $value, array $options = [] ): HttpResponse {
         $content = "$name=$value";
         if ( ! empty( $options ) ) {
             $fromToKeys = [
@@ -126,11 +124,12 @@ class RealHttpResponse implements HttpResponse {
         return $this->setHeader( HEADER_SET_COOKIE, $content );
     }
 
-    function clearCookie( $name, array $options = [] ) {
+    /** @inheritDoc */
+    function clearCookie( $name, array $options = [] ): HttpResponse {
         return $this->cookie( $name, '', $options );
     }
 
-    private function setHeader( $header, $value ) {
+    private function setHeader( $header, $value ): HttpResponse {
         if ( ! \is_string( $header ) ) {
             throw new \LogicException( MSG_HEADER_KEY_MUST_BE_STRING );
         }
@@ -141,7 +140,8 @@ class RealHttpResponse implements HttpResponse {
         return $this;
     }
 
-    function type( $mime, $useUTF8 = true ) {
+    /** @inheritDoc */
+    function type( $mime, $useUTF8 = true ): HttpResponse {
         $value = ( \mb_strlen( $mime ) <= 4 && isset( SHORT_MIMES[ $mime ] ) )
             ? SHORT_MIMES[ $mime ] : $mime;
         if ( $useUTF8 && \mb_strripos( $value, 'text/' ) === 0 && \mb_strripos( $value, 'charset' ) !== false ) {
@@ -150,7 +150,8 @@ class RealHttpResponse implements HttpResponse {
         return $this->setHeader( HEADER_CONTENT_TYPE, $value );
     }
 
-    function send( $body ) {
+    /** @inheritDoc */
+    function send( $body ): HttpResponse {
         if ( \is_array( $body ) || \is_object( $body ) ) {
             return $this->json( $body );
         }
@@ -158,7 +159,8 @@ class RealHttpResponse implements HttpResponse {
         return $this->end( false );
     }
 
-    function json( $body ) {
+    /** @inheritDoc */
+    function json( $body ): HttpResponse {
         $this->setHeader( HEADER_CONTENT_TYPE, MIME_JSON_UTF8 );
         if ( \is_array( $body ) || \is_object( $body ) ) {
             $result = \json_encode( $body );
@@ -172,7 +174,8 @@ class RealHttpResponse implements HttpResponse {
         return $this->end( false );
     }
 
-    function sendFile( $path, $options = [] ) {
+    /** @inheritDoc */
+    function sendFile( $path, $options = [] ): HttpResponse {
 
         if ( ! \is_readable( $path ) ) {
             throw new \RuntimeException( 'File not found or not readable.' );
@@ -213,13 +216,14 @@ class RealHttpResponse implements HttpResponse {
         return $this->end( true );
     }
 
-    function end( $clear = true ) {
+    /** @inheritDoc */
+    function end( $clear = true ): HttpResponse {
         $this->sendHeaders( $clear );
         $this->sendBody( $clear );
         return $this; // It should be kept
     }
 
-    protected function sendHeaders( $clear ) {
+    protected function sendHeaders( $clear ): void {
         if ( $this->statusCode !== 0 ) {
             \http_response_code( $this->statusCode );
         }
@@ -231,7 +235,7 @@ class RealHttpResponse implements HttpResponse {
         }
     }
 
-    protected function sendBody( $clear ) {
+    protected function sendBody( $clear ): void {
         if ( ! $this->avoidOutput ) {
             foreach ( $this->body as $body ) {
                 echo $body;
