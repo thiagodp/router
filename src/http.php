@@ -1,6 +1,9 @@
 <?php
 namespace phputil\router;
 
+use function array_search;
+use function mb_strtoupper;
+
 // HTTP METHODS ---------------------------------------------------------------
 
 const METHOD_GET        = 'GET';
@@ -24,7 +27,7 @@ const SUPPORTED_METHODS = [
 // UTILITIES ------------------------------------------------------------------
 
 function isHttpMethodValid( $method ) {
-    return \array_search( \mb_strtoupper( $method ), SUPPORTED_METHODS ) !== false;
+    return array_search( mb_strtoupper( $method ), SUPPORTED_METHODS ) !== false;
 }
 
 ?>

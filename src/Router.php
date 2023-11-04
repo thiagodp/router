@@ -15,6 +15,10 @@ require_once 'MiddlewareEntry.php';
 require_once 'regex.php';
 require_once 'RouterOptions.php';
 
+use function call_user_func_array;
+use function is_array;
+use function is_object;
+
 // STATUS ---------------------------------------------------------------------
 
 const STATUS_NOT_FOUND = 404;
@@ -32,17 +36,34 @@ class Router extends GroupEntry {
 
     // TODO: refactor
     protected function findRoute(
-        &$req, &$res, &$path, &$httpMethod, &$parentRoute, array &$children, &$routeEntry, &$variables, &$routeMatched
-    ) {
+        &$req,
+        &$res,
+        &$path,
+        &$httpMethod,
+        &$parentRoute,
+        array &$children,
+        &$routeEntry,
+        &$variables,
+        &$routeMatched,
+        bool &$hasStopped
+    ): bool {
+
+        $hasStopped = false;
         foreach ( $children as &$entry ) {
 
             // Middleware
             if ( $entry->type() === ENTRY_MIDDLEWARE && isset( $entry->callback ) ) {
                 $stop = false;
-                call_user_func_array( $entry->callback, [ &$req, &$res, &$stop ] );
+                $ok = ! ( call_user_func_array( $entry->callback, [ &$req, &$res, &$stop ] ) === false );
+                if ( ! $ok ) {
+                    return false;
+                }
+
                 if ( $stop ) {
+                    $hasStopped = true;
                     break;
                 }
+
                 continue; // Proceed to the next entry
             }
 
@@ -75,12 +96,18 @@ class Router extends GroupEntry {
             }
 
             // It is was a group, find in children
+            $stop = false;
             $found = $this->findRoute(
-                $req, $res, $path, $httpMethod, $newRoute, $entry->children, $routeEntry, $variables, $routeMatched );
+                $req, $res, $path, $httpMethod, $newRoute, $entry->children, $routeEntry, $variables, $routeMatched, $stop );
             if ( $found ) {
                 return true;
             }
+            if ( $stop ) {
+                $hasStopped = true;
+                break;
+            }
         }
+
         return false;
     }
 
@@ -93,13 +120,18 @@ class Router extends GroupEntry {
      */
     function listen( $options = [] ) {
 
-        $opt = \is_array( $options )
-            ? ( ( new RouterOptions() )->fromArray( $options ) )
-            : ( ( \is_object( $options ) && $options instanceof RouterOptions ) ? $options : new RouterOptions() );
+        $opt = null;
+        if ( is_array( $options ) ) {
+            $opt = ( new RouterOptions() )->fromArray( $options );
+        } else {
+            $opt = ( is_object( $options ) && $options instanceof RouterOptions )
+                ? $options
+                : new RouterOptions();
+        }
 
-        $req = ( \is_object( $opt->req ) && $opt->req instanceof HttpRequest ) ? $opt->req : new RealHttpRequest();
+        $req = ( is_object( $opt->req ) && $opt->req instanceof HttpRequest ) ? $opt->req : new RealHttpRequest();
 
-        $res = ( \is_object( $opt->res ) && $opt->res instanceof HttpResponse ) ? $opt->res : new RealHttpResponse();
+        $res = ( is_object( $opt->res ) && $opt->res instanceof HttpResponse ) ? $opt->res : new RealHttpResponse();
 
         // var_dump( $opt, $req, $res );
         // die();
@@ -112,17 +144,22 @@ class Router extends GroupEntry {
         $variables = null;
         $httpMethod = $req->method();
         $routeMatched = false;
+        $hasStopped = false;
 
         $found = $this->findRoute(
-            $req, $res, $path, $httpMethod, $this->route, $this->children, $routeEntry, $variables, $routeMatched );
+            $req, $res, $path, $httpMethod, $this->route, $this->children, $routeEntry, $variables, $routeMatched, $hasStopped );
 
-        // Method not allowed
+        if ( $hasStopped ) {
+            return [ $found, $req, $res, $variables ];
+        }
+
+        // Route exists but its method is not allowed
         if ( $routeMatched && ! isset( $routeEntry )  ) { // Route matched but has no entry
             $res->status( STATUS_METHOD_NOT_ALLOWED )->end();
             return [ false, $req, $res, $variables ];
         }
 
-        // Not found
+        // No entry found
         if ( ! isset( $routeEntry ) ) {
             $res->status( STATUS_NOT_FOUND )->end();
             return [ false, $req, $res, $variables ];
@@ -146,7 +183,7 @@ class Router extends GroupEntry {
             //     array_pop( $args );
             // }
 
-            $ok = ! ( \call_user_func_array( $callback, $args ) === false );
+            $ok = ! ( call_user_func_array( $callback, $args ) === false );
             if ( ! $ok || $stop ) {
                 break;
             }

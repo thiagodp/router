@@ -5,6 +5,9 @@ require_once 'HttpRequest.php';
 require_once 'ExtraData.php';
 require_once 'request.php';
 
+use function file_get_contents;
+
+
 /**
  * Real HTTP request.
  */
@@ -53,7 +56,7 @@ class RealHttpRequest implements HttpRequest {
 
     /** @inheritDoc */
     function rawBody(): ?string {
-        $content = \file_get_contents( 'php://input' );
+        $content = file_get_contents( 'php://input' );
         return $content === false ? null : $content;
     }
 

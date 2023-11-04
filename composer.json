@@ -3,13 +3,6 @@
     "description": "ExpressJS-like router for PHP",
     "type": "library",
     "license": "MIT",
-    "scripts": {
-        "test": "kahlan",
-        "test2": "kahlan --reporter=verbose",
-        "cov": "kahlan --coverage",
-        "check": "phpstan analyze src",
-        "l1": "phpstan analyze src --level=1"
-    },
     "require": {
         "php": ">=7.4",
         "ext-mbstring": "*",
@@ -25,10 +18,10 @@
             "phputil\\router\\": "src/"
         }
     },
-    "authors": [
-        {
-            "name": "Thiago Delgado Pinto",
-            "email": "thiago-dp@bol.com.br"
-        }
-    ]
+    "scripts": {
+        "test": "kahlan",
+        "test2": "kahlan --reporter=verbose",
+        "cov": "kahlan --coverage",
+        "check": "phpstan analyze src --level=3"
+    }
 }

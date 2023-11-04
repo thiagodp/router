@@ -1,6 +1,18 @@
 <?php
 namespace phputil\router;
 
+use function explode;
+use function htmlspecialchars;
+use function file_get_contents;
+use function fclose;
+use function fopen;
+use function fwrite;
+use function mb_parse_str;
+use function mb_stripos;
+use function mb_strtolower;
+use function preg_match;
+use function tempnam;
+
 // ===> THIS FILE IS UNFINISHED <===
 
 // TO-DO Deal with multipart/form-data, eg.:
@@ -42,12 +54,12 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
         }
     }
 
-    $content = @\file_get_contents( 'php://input' );
+    $content = @file_get_contents( 'php://input' );
     if ( $content === false ) {
         return null;
     }
 
-    $contentType = \mb_strtolower( $contentType );
+    $contentType = mb_strtolower( $contentType );
     if ( $contentType === 'application/x-www-form-urlencoded' ) { // Form data only
         handleFormUrlEncoded( $content, $result );
     } else if ( $contentType === 'multipart/form-data' ) { // Form data, files or both
@@ -65,14 +77,14 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
 //         return null;
 //     }
 //     return $preventInjection
-//         ? \htmlspecialchars( $params[ $key ] )
+//         ? htmlspecialchars( $params[ $key ] )
 //         : $params[ $key ];
 // }
 
 
 function handleFormUrlEncoded( &$content, ExtractionResult &$result ) {
     $params = [];
-    if ( \mb_parse_str( $content, $params ) !== false ) {
+    if ( mb_parse_str( $content, $params ) !== false ) {
         $result->data = $params;
     }
 }
@@ -85,7 +97,7 @@ function handleFormUrlEncoded( &$content, ExtractionResult &$result ) {
  */
 function handleOctetStream( &$content, ExtractionResult &$result ) {
     $matches = [];
-    $ok = \preg_match( '/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $content, $matches );
+    $ok = preg_match( '/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $content, $matches );
     if ( $ok ) {
         list( , $fileName, &$fileContent ) = $matches;
         $result->files[ $fileName ] = $fileContent;
@@ -130,16 +142,16 @@ const DEFAULT_TEMP_PREFIX = 'tmp';
 function saveToTempFile( &$content, TempSaveOptions $options = new TempSaveOptions() ) {
     $dir = empty( $options->tempDir ) ? sys_get_temp_dir() : $options->tempDir;
     $prefix = empty( $options->tempPrefix ) ? DEFAULT_TEMP_PREFIX : $options->tempPrefix;
-    $fileName = @\tempnam( $dir, $prefix );
+    $fileName = @tempnam( $dir, $prefix );
     if ( $fileName === false ) {
         return null;
     }
-    $fp = @\fopen( $fileName, 'w' );
+    $fp = @fopen( $fileName, 'w' );
     if ( $fp === false ) {
         return null;
     }
-    $writeResult = @\fwrite( $fp, $content );
-    $closeResult = @\fclose( $fp );
+    $writeResult = @fwrite( $fp, $content );
+    $closeResult = @fclose( $fp );
     if ( $writeResult === false || $closeResult === false ) {
         return null;
     }
@@ -177,7 +189,7 @@ class Context {
 function extractMultipart( $rawBody ) {
     $current = new Context();
     $params = [];
-    $lines = \explode( "\r\n", $rawBody );
+    $lines = explode( "\r\n", $rawBody );
     foreach ( $lines as $line ) {
 
         if ( empty( $line ) && $current->lastLineWasHeader ) {
@@ -185,7 +197,7 @@ function extractMultipart( $rawBody ) {
             continue;
         }
 
-        if ( ! handleAsHeader( $current, $line, $params ) ) {
+        if ( ! handleAsHeader( $current, $line ) ) {
             handleAsContent( $current, $line, $params );
         }
 
@@ -198,10 +210,10 @@ function extractMultipart( $rawBody ) {
 
 function handleAsHeader( Context &$current, $line ) {
 
-    if ( \mb_stripos( 'Content-Disposition', $line ) === 0 ) {
+    if ( mb_stripos( 'Content-Disposition', $line ) === 0 ) {
         $current->lastLineWasHeader = true;
         $matches = [];
-        \preg_match( '/^Content\-Disposition\: ([a-z -\/]+); (?:name|filename)\="([^"]+)"/iu', $line, $matches );
+        preg_match( '/^Content\-Disposition\: ([a-z -\/]+); (?:name|filename)\="([^"]+)"/iu', $line, $matches );
         list( $type, $name ) = $matches;
         if ( $type === 'form-data' ) {
 
@@ -210,10 +222,10 @@ function handleAsHeader( Context &$current, $line ) {
 
         return true;
 
-    } else if ( \mb_stripos( 'Content-Type', $line ) === 0 ) {
+    } else if ( mb_stripos( 'Content-Type', $line ) === 0 ) {
         $current->lastLineWasHeader = true;
         $matches = [];
-        \preg_match( '/^Content\-Type\: ([a-z -\/]+)(?:; boundary=)?([a-zA-Z0-9]+)?$/i', $line, $matches );
+        preg_match( '/^Content\-Type\: ([a-z -\/]+)(?:; boundary=)?([a-zA-Z0-9]+)?$/i', $line, $matches );
         list( , $contentType, $boundary ) = $matches;
         $current->contentType = $contentType;
         if ( isset( $boundary ) ) {

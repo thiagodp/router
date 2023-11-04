@@ -1,6 +1,10 @@
 <?php
 namespace phputil\router;
 
+use function array_search;
+use function count;
+use function explode;
+
 const MIME_ANY      = '*/*';
 const ENCODING_ANY  = '*';
 
@@ -12,10 +16,10 @@ function areMimeCompatible( $first, $second ) {
     if ( $first === MIME_ANY || $second === MIME_ANY ) {
         return true;
     }
-    $firstPieces = \explode( '/', $first ); // type/subtype
-    $secondPieces = \explode( '/', $second ); // type/subtype
-    $firstCount = \count( $firstPieces );
-    $secondCount = \count( $secondPieces );
+    $firstPieces = explode( '/', $first ); // type/subtype
+    $secondPieces = explode( '/', $second ); // type/subtype
+    $firstCount = count( $firstPieces );
+    $secondCount = count( $secondPieces );
     if ( $firstCount == 1 && $secondCount == 1 ) { // Subtypes only
         return areMimePartCompatible( $firstPieces[ 0 ], $secondPieces[ 0 ] );
     } else if ( $firstCount == 1 && $secondCount == 2 ) {
@@ -31,7 +35,7 @@ function areMimeCompatible( $first, $second ) {
 
 function compareMimes( array $desired, array $received ) {
     // If it is accepting all, there is no need to check the received headers
-    if ( \array_search( MIME_ANY, $desired ) !== false ) {
+    if ( array_search( MIME_ANY, $desired ) !== false ) {
         return true;
     }
 
@@ -74,9 +78,9 @@ const SHORT_MIMES = [
  * Returns the file MIME or null in case of error.
  *
  * @param string $path File path
- * @return string
+ * @return string|null
  */
-function getFileMime( $path ) {
+function getFileMime( $path ): ?string {
     $finfo = finfo_open( FILEINFO_MIME_TYPE );
     if ( $finfo === false ) {
         return null;

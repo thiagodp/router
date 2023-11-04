@@ -4,6 +4,11 @@ namespace phputil\router;
 require_once 'Entry.php';
 require_once 'RouteBasedEntry.php';
 
+use LogicException;
+
+use function is_array;
+
+
 class GroupEntry extends RouteBasedEntry {
 
     function __construct( $route ) {
@@ -55,9 +60,9 @@ class GroupEntry extends RouteBasedEntry {
 
     protected function addEntry( $route, $httpMethod, array $callbacks ) {
         if ( ! isHttpMethodValid( $httpMethod ) ) {
-            throw new \LogicException( "Invalid HTTP method: $httpMethod" );
+            throw new LogicException( "Invalid HTTP method: $httpMethod" );
         }
-        if ( \is_array( $route ) ) {
+        if ( is_array( $route ) ) {
             foreach ( $route as $str ) {
                 $this->children []= new HttpEntry( $str, $httpMethod, $callbacks );
             }

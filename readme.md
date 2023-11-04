@@ -10,6 +10,8 @@
 - Unit-tested
 - Mockable - it's easy to create automated tests for your API
 
+👉 Do **NOT** use it in production yet - just for toy projects.
+
 ## Installation
 
 > Requires PHP 7.4+
@@ -536,6 +538,7 @@ interface HttpResponse {
     function end( $clear = true ): HttpResponse;
 }
 ```
+
 
 ### Mocking an HTTP request
 

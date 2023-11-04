@@ -96,7 +96,7 @@ interface HttpResponse {
      *
      * @param bool clear If it is desired to clear the headers and the body after sending them. It defaults to `true`.
      */
-    function end( $clear = true ): HttpResponse;
+    function end( bool $clear = true ): HttpResponse;
 }
 
 ?>

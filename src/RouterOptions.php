@@ -1,6 +1,9 @@
 <?php
 namespace phputil\router;
 
+use function array_key_exists;
+use function get_object_vars;
+
 /**
  * Router options.
  */
@@ -17,7 +20,7 @@ class RouterOptions {
 
     /** Converts to an array */
     public function toArray() {
-        return \get_object_vars( $this );
+        return get_object_vars( $this );
     }
 
     /**
@@ -29,7 +32,7 @@ class RouterOptions {
     public function fromArray( array $options ) {
         $attributes = $this->toArray();
         foreach ( $options as $key => $value ) {
-            if ( \array_key_exists( $key, $attributes ) ) {
+            if ( array_key_exists( $key, $attributes ) ) {
                 $this->{ $key } = $value;
             }
         }

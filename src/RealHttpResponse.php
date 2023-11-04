@@ -6,6 +6,26 @@ require_once 'HttpException.php';
 require_once 'mime.php';
 require_once 'headers.php';
 
+use LogicException;
+use RuntimeException;
+
+use function array_key_exists;
+use function array_search;
+use function basename;
+use function filesize;
+use function get_object_vars;
+use function header;
+use function http_response_code;
+use function is_array;
+use function is_null;
+use function is_object;
+use function is_readable;
+use function is_string;
+use function json_encode;
+use function mb_strlen;
+use function mb_strripos;
+
+
 const MSG_HEADER_VALUE_CANNOT_BE_NULL = 'Header value cannot be null.';
 const MSG_HEADER_KEY_MUST_BE_STRING = 'Header key must be a string.';
 const MSG_HEADER_PARAMETER_INVALID = 'Invalid header type. Accepted: string, array.';
@@ -31,7 +51,7 @@ class RealHttpResponse implements HttpResponse {
     //
 
     function dump() {
-        return \get_object_vars( $this );
+        return get_object_vars( $this );
     }
 
     function dumpObject() {
@@ -69,7 +89,7 @@ class RealHttpResponse implements HttpResponse {
                 $this->setHeader( $h, $v );
             }
         } else {
-            throw new \LogicException( MSG_HEADER_PARAMETER_INVALID );
+            throw new LogicException( MSG_HEADER_PARAMETER_INVALID );
         }
         return $this;
     }
@@ -77,7 +97,7 @@ class RealHttpResponse implements HttpResponse {
     /** @inheritDoc */
     function redirect( $statusCode, $path = null ): HttpResponse {
         $this->status( $statusCode );
-        if ( ! \is_null( $path ) ) {
+        if ( ! is_null( $path ) ) {
             $this->setHeader( HEADER_LOCATION, $path );
         }
         return $this;
@@ -99,11 +119,11 @@ class RealHttpResponse implements HttpResponse {
 
             $opt = [];
             foreach ( $options as $key => $value ) {
-                if ( \array_key_exists( $key, $fromToKeys ) ) {
+                if ( array_key_exists( $key, $fromToKeys ) ) {
                     $opt[ $fromToKeys[ $key ] ] = $value;
                     continue;
                 }
-                if ( \array_search( $key, $fromToKeys ) === false ) {
+                if ( array_search( $key, $fromToKeys ) === false ) {
                     continue;
                 }
                 $opt[ $key ] = $value;
@@ -130,11 +150,11 @@ class RealHttpResponse implements HttpResponse {
     }
 
     private function setHeader( $header, $value ): HttpResponse {
-        if ( ! \is_string( $header ) ) {
-            throw new \LogicException( MSG_HEADER_KEY_MUST_BE_STRING );
+        if ( ! is_string( $header ) ) {
+            throw new LogicException( MSG_HEADER_KEY_MUST_BE_STRING );
         }
-        if ( \is_null( $value ) ) {
-            throw new \LogicException( MSG_HEADER_VALUE_CANNOT_BE_NULL );
+        if ( is_null( $value ) ) {
+            throw new LogicException( MSG_HEADER_VALUE_CANNOT_BE_NULL );
         }
         $this->headers[ $header ] = $value;
         return $this;
@@ -142,9 +162,9 @@ class RealHttpResponse implements HttpResponse {
 
     /** @inheritDoc */
     function type( $mime, $useUTF8 = true ): HttpResponse {
-        $value = ( \mb_strlen( $mime ) <= 4 && isset( SHORT_MIMES[ $mime ] ) )
+        $value = ( mb_strlen( $mime ) <= 4 && isset( SHORT_MIMES[ $mime ] ) )
             ? SHORT_MIMES[ $mime ] : $mime;
-        if ( $useUTF8 && \mb_strripos( $value, 'text/' ) === 0 && \mb_strripos( $value, 'charset' ) !== false ) {
+        if ( $useUTF8 && mb_strripos( $value, 'text/' ) === 0 && mb_strripos( $value, 'charset' ) !== false ) {
             $value .= ';charset=UTF-8';
         }
         return $this->setHeader( HEADER_CONTENT_TYPE, $value );
@@ -152,7 +172,7 @@ class RealHttpResponse implements HttpResponse {
 
     /** @inheritDoc */
     function send( $body ): HttpResponse {
-        if ( \is_array( $body ) || \is_object( $body ) ) {
+        if ( is_array( $body ) || is_object( $body ) ) {
             return $this->json( $body );
         }
         $this->body []= $body;
@@ -162,8 +182,8 @@ class RealHttpResponse implements HttpResponse {
     /** @inheritDoc */
     function json( $body ): HttpResponse {
         $this->setHeader( HEADER_CONTENT_TYPE, MIME_JSON_UTF8 );
-        if ( \is_array( $body ) || \is_object( $body ) ) {
-            $result = \json_encode( $body );
+        if ( is_array( $body ) || is_object( $body ) ) {
+            $result = json_encode( $body );
             if ( $result === false ) {
                 throw new HttpException( MSG_JSON_ENCODING_ERROR );
             }
@@ -177,18 +197,18 @@ class RealHttpResponse implements HttpResponse {
     /** @inheritDoc */
     function sendFile( $path, $options = [] ): HttpResponse {
 
-        if ( ! \is_readable( $path ) ) {
-            throw new \RuntimeException( 'File not found or not readable.' );
+        if ( ! is_readable( $path ) ) {
+            throw new RuntimeException( 'File not found or not readable.' );
         }
 
-        $mime = ( \is_array( $options ) && isset( $options[ 'mime' ] ) )
+        $mime = ( is_array( $options ) && isset( $options[ 'mime' ] ) )
             ? $options[ 'mime' ] : getFileMime( $path );
         if ( ! isset( $mime ) ) {
-            throw new \RuntimeException( 'MIME type could not be defined. Please inform it.' );
+            throw new RuntimeException( 'MIME type could not be defined. Please inform it.' );
         }
 
-        $fileSize = \filesize( $path );
-        $fileDisposition = 'attachment; path=' . \basename( $path );
+        $fileSize = filesize( $path );
+        $fileDisposition = 'attachment; path=' . basename( $path );
 
         $this->status( 200 );
         $this->header( [
@@ -225,10 +245,10 @@ class RealHttpResponse implements HttpResponse {
 
     protected function sendHeaders( $clear ): void {
         if ( $this->statusCode !== 0 ) {
-            \http_response_code( $this->statusCode );
+            http_response_code( $this->statusCode );
         }
         foreach ( $this->headers as $header => $value ) {
-            @\header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
+            @header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
         }
         if ( $clear && ! $this->avoidClearing ) {
             $this->headers = [];

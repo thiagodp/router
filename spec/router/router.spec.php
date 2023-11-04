@@ -344,6 +344,22 @@ describe( 'router', function() {
             expect( $count )->toBe( 11 );
         } );
 
+
+        it( 'works with OPTIONS', function() {
+            // Faking the request
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'OPTIONS' );
+
+            $count = 0;
+            $callback = function( $req, $res, &$stop ) use ( &$count ) { $count++; };
+            $this->router
+                ->use( $callback )
+                ->options( '/foo' );
+
+            list( $ok ) = $this->router->listen( [ 'req' => $this->fakeReq ] );
+            expect( $ok )->toBe( true );
+            expect( $count )->toBeGreaterThan( 0 );
+        } );
+
     } );
 
 
