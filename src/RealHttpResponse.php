@@ -195,19 +195,21 @@ class RealHttpResponse implements HttpResponse {
     }
 
     /** @inheritDoc */
-    function sendFile( $path, $options = [] ): HttpResponse {
+    function sendFile( $path, array $options = [] ): HttpResponse {
 
         if ( ! is_readable( $path ) ) {
             throw new RuntimeException( 'File not found or not readable.' );
         }
 
-        $mime = ( is_array( $options ) && isset( $options[ 'mime' ] ) )
-            ? $options[ 'mime' ] : getFileMime( $path );
+        $mime = isset( $options[ 'mime' ] )
+            ? $options[ 'mime' ]
+            : ( isset( $headers[ 'Content-Type' ] ) ? $headers[ 'Content-Type' ] : getFileMime( $path ) );
+
         if ( ! isset( $mime ) ) {
             throw new RuntimeException( 'MIME type could not be defined. Please inform it.' );
         }
 
-        $fileSize = filesize( $path );
+        $fileSize = @filesize( $path );
         $fileDisposition = 'attachment; path=' . basename( $path );
 
         $this->status( 200 );
