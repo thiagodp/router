@@ -48,7 +48,7 @@ function extractHeaders( array &$array ) {
 }
 
 
-function headerWithName( $name, array $array ) {
+function headerWithName( $name, array $array ): ?string {
     if ( isset( $array[ $name ] ) ) {
         return $array[ $name ];
     }

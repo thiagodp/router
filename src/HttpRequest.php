@@ -19,7 +19,7 @@ interface HttpRequest {
     function headers(): array;
 
     /** Returns the header with the given case-insensitive name, or `null` if not found. */
-    function header( $name ): ?string;
+    function header( string $name ): ?string;
 
     /** Returns the raw body or `null` on failure. */
     function rawBody(): ?string;
@@ -44,7 +44,7 @@ interface HttpRequest {
      * @param string $key Cookie key.
      * @return string|null
      */
-    function cookie( $key ): ?string;
+    function cookie( string $key ): ?string;
 
     /**
      * Returns a URL query or route parameter with the given name (key),
@@ -53,7 +53,7 @@ interface HttpRequest {
      * @param string $name Parameter name.
      * @return string
      */
-    function param( $name ): ?string;
+    function param( string $name ): ?string;
 
     /**
      * Returns all the URL queries and route parameters as an array (map).

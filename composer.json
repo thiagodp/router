@@ -22,6 +22,6 @@
         "test": "kahlan",
         "test2": "kahlan --reporter=verbose",
         "cov": "kahlan --coverage",
-        "check": "phpstan analyze src --level=3"
+        "lint": "phpstan analyze src --level=4"
     }
 }

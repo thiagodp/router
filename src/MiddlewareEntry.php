@@ -5,10 +5,10 @@ require_once 'Entry.php';
 
 class MiddlewareEntry implements Entry {
 
-    /** @var callback Callback like function ( $req, $res, &$stop ) */
+    /** @var callable Callback like function ( $req, $res, &$stop ) */
     public $callback = null;
 
-    public function __construct( $callback ) {
+    public function __construct( callable $callback ) {
         $this->callback = $callback;
     }
 

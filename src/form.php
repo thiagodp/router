@@ -41,17 +41,9 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
 
     // HTTP POST: $_POST and $_FILES works for both "application/x-www-form-urlencoded" and "multipart/form-data"
     if ( $httpMethod === 'POST' ) {
-        $hasPost = isset( $_POST );
-        $hasFiles = isset( $_FILES );
-        if ( $hasPost ) {
-            $result->data = $_POST; // copy
-        }
-        if ( $hasFiles ) {
-            $result->files = $_FILES; // copy
-        }
-        if ( $hasPost && $hasFiles ) {
-            return $result;
-        }
+        $result->data = $_POST; // copy
+        $result->files = $_FILES; // copy
+        return $result;
     }
 
     $content = @file_get_contents( 'php://input' );
@@ -225,12 +217,12 @@ function handleAsHeader( Context &$current, $line ) {
     } else if ( mb_stripos( 'Content-Type', $line ) === 0 ) {
         $current->lastLineWasHeader = true;
         $matches = [];
-        preg_match( '/^Content\-Type\: ([a-z -\/]+)(?:; boundary=)?([a-zA-Z0-9]+)?$/i', $line, $matches );
+        if ( ! preg_match( '/^Content\-Type\: ([a-z -\/]+)(?:; boundary=)?([a-zA-Z0-9]+)?$/i', $line, $matches ) ) {
+            return false;
+        }
         list( , $contentType, $boundary ) = $matches;
         $current->contentType = $contentType;
-        if ( isset( $boundary ) ) {
-            $current->boundary = $boundary;
-        }
+        $current->boundary = $boundary;
         return true;
     }
     return false;

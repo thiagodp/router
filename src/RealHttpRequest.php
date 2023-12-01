@@ -13,16 +13,13 @@ use function file_get_contents;
  */
 class RealHttpRequest implements HttpRequest {
 
-    private $_cookies = null;
+    private $_cookies = [];
     private $_params = [];
     private $_extra = null;
 
     /** @inheritDoc */
     function url(): ?string {
-        if ( ! isset( $_SERVER, $_SERVER[ 'REQUEST_URI' ] ) ) {
-            return null;
-        }
-        return $_SERVER[ 'REQUEST_URI' ];
+        return $_SERVER[ 'REQUEST_URI' ] ?? null;
     }
 
     /** @inheritDoc */
@@ -32,31 +29,22 @@ class RealHttpRequest implements HttpRequest {
 
     /** @inheritDoc */
     function queries(): array {
-        if ( ! isset( $_GET ) ) {
-            return [];
-        }
         return $_GET;
     }
 
     /** @inheritDoc */
     function headers(): array {
-        if ( ! isset( $_SERVER ) ) {
-            return [];
-        }
         return extractHeaders( $_SERVER );
     }
 
     /** @inheritDoc */
-    function header( $name ): ?string {
-        if ( ! isset( $_SERVER ) ) {
-            return null;
-        }
+    function header( string $name ): ?string {
         return headerWithName( $name, $_SERVER );
     }
 
     /** @inheritDoc */
     function rawBody(): ?string {
-        $content = file_get_contents( 'php://input' );
+        $content = @file_get_contents( 'php://input' );
         return $content === false ? null : $content;
     }
 
@@ -67,39 +55,31 @@ class RealHttpRequest implements HttpRequest {
 
     /** @inheritDoc */
     function method(): ?string {
-        if ( ! isset( $_SERVER, $_SERVER[ 'REQUEST_METHOD' ] ) ) {
-            return null;
-        }
-        return $_SERVER[ 'REQUEST_METHOD' ];
+        return $_SERVER[ 'REQUEST_METHOD' ] ?? null;
     }
 
     /** @inheritDoc */
     function cookies(): array {
-        if ( isset( $_COOKIE ) ) {
-            return $_COOKIE;
+        return $_COOKIE;
+    }
+
+    /** @inheritDoc */
+    function cookie( string $key ): ?string {
+        if ( isset( $_COOKIE[ $key ] ) ) {
+            return $_COOKIE[ $key ];
         }
-        if ( ! isset( $this->_cookies ) ) {
+        if ( empty( $this->_cookies ) ) {
             $this->_cookies = extractCookies( $this->headers() );
         }
-        return $this->_cookies;
-
+        return $this->_cookies[ $key ] ?? null;
     }
 
     /** @inheritDoc */
-    function cookie( $key ): ?string {
-        $cookies = $this->cookies();
-        return isset( $cookies[ $key ] ) ? $cookies[ $key ] : null;
-    }
-
-    /** @inheritDoc */
-    function param( $name ): ?string {
+    function param( string $name ): ?string {
         if ( isset( $_GET[ $name ] ) ) {
             return urldecode( $_GET[ $name ] );
         }
-        if ( isset( $this->_params[ $name ] ) ) {
-            return $this->_params[ $name ];
-        }
-        return null;
+        return $this->_params[ $name ] ?? null;
     }
 
     /** @inheritDoc */
