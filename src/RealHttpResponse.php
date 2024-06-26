@@ -58,18 +58,6 @@ class RealHttpResponse implements HttpResponse {
         return (object) $this->dump();
     }
 
-    function isStatus( $code ) {
-        return $code === $this->statusCode;
-    }
-
-    public function hasHeader( $key ) {
-        return array_key_exists( $key, $this->headers );
-    }
-
-    public function getHeader( $key ) {
-        return array_key_exists( $key, $this->headers ) ? $this->headers[ $key ] : null;
-    }
-
     //
     // HttpResponse
     //
@@ -79,6 +67,11 @@ class RealHttpResponse implements HttpResponse {
         $this->statusCode = $code;
         return $this;
     }
+
+    /** @inheritDoc */
+    function isStatus( int $code ): bool {
+        return $code === $this->statusCode;
+    }       
 
     /** @inheritDoc */
     function header( $header, $value = null ): HttpResponse {
@@ -92,6 +85,16 @@ class RealHttpResponse implements HttpResponse {
             throw new LogicException( MSG_HEADER_PARAMETER_INVALID );
         }
         return $this;
+    }
+
+    /** @inheritDoc */
+    public function getHeader( string $header ): ?string {
+        return $this->headers[ $header ] ?? null;
+    }
+
+    /** @inheritDoc */
+    function hasHeader( string $header ): bool {
+        return array_key_exists( $header, $this->headers );
     }
 
     /** @inheritDoc */

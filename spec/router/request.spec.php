@@ -8,7 +8,7 @@ use function phputil\router\removeQueries;
 
 describe( 'request', function() {
 
-    describe( 'removeQueries', function() {
+    describe( '#removeQueries', function() {
 
         it( 'removes any content after question mark', function() {
             $r = removeQueries( 'foo?bar=1&zoo=hello' );
@@ -17,7 +17,7 @@ describe( 'request', function() {
 
     } );
 
-    describe( 'extractCookies', function() {
+    describe( '#extractCookies', function() {
 
         it( 'extracts case-insentively', function() {
             $r = extractCookies( [
@@ -37,7 +37,7 @@ describe( 'request', function() {
     } );
 
 
-    describe( 'headerWithName', function() {
+    describe( '#headerWithName', function() {
 
         it( 'gets the header case-insentively', function() {
             $r = headerWithName( 'content-type', [
@@ -50,7 +50,7 @@ describe( 'request', function() {
     } );
 
 
-    describe( 'analyzeBody', function() {
+    describe( '#analyzeBody', function() {
 
         it( 'returns an array when the content type is form', function () {
             $r = analizeBody( 'application/x-www-form-urlencoded', 'name=Alice&age=21' );

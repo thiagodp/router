@@ -97,46 +97,44 @@ class FakeHttpRequest implements HttpRequest {
     // Extra, build methods
     //
 
-    function withUrl( $url ): HttpRequest {
+    function withUrl( $url ): FakeHttpRequest {
         $this->_url = $url;
         return $this;
     }
 
-    function withQueries( array $queries ): HttpRequest {
+    function withQueries( array $queries ): FakeHttpRequest {
         $this->_queries = $queries;
         return $this;
     }
 
-    function withHeaders( array $headers ): HttpRequest {
+    function withHeaders( array $headers ): FakeHttpRequest {
         $this->_headers = $headers;
         return $this;
     }
 
-    function withHeader( $key, $value ): HttpRequest {
+    function withHeader( $key, $value ): FakeHttpRequest {
         $this->_headers[ $key ] = $value;
         return $this;
     }
 
-    function withRawBody( $rawBody ): HttpRequest {
+    function withRawBody( $rawBody ): FakeHttpRequest {
         $this->_rawBody = $rawBody;
         return $this;
     }
 
-    function withBody( $body ): HttpRequest {
+    function withBody( $body ): FakeHttpRequest {
         return $this->withRawBody( $body );
     }
 
-    function withMethod( $method ): HttpRequest {
+    function withMethod( $method ): FakeHttpRequest {
         $this->_method = $method;
         return $this;
     }
 
-    function withCookies( array $cookies ): HttpRequest {
+    function withCookies( array $cookies ): FakeHttpRequest {
         $this->_cookies = $cookies;
         return $this;
     }
-
-
 
 }
 

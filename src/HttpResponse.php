@@ -12,6 +12,14 @@ interface HttpResponse {
     function status( int $code ): HttpResponse;
 
     /**
+     * Indicates if the current HTTP status code is equal to the given one.
+     *
+     * @param int $code HTTP status code.
+     * @return bool
+     */    
+    function isStatus( int $code ): bool;
+
+    /**
      * Sets an HTTP header.
      *
      * @param string $header HTTP header.
@@ -19,6 +27,22 @@ interface HttpResponse {
      * @return HttpResponse
      */
     function header( string $header, $value ): HttpResponse;
+
+    /**
+     * Indicates if the response has the given HTTP header.
+     *
+     * @param string $header HTTP header.
+     * @return boolean
+     */
+    function hasHeader( string $header ): bool;
+
+    /**
+     * Returns the response header, if it exists. Returns `null` otherwise.
+     *
+     * @param string $header HTTP header.
+     * @return string|null
+     */
+    function getHeader( string $header ): ?string;    
 
     /**
      * Sets a redirect response.
