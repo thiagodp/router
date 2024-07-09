@@ -24,7 +24,8 @@ composer require phputil/router
 
 ### Notes
 
-- Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server). See [Server Configuration](server.md) for more information.
+- Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server).
+  - See [Server Configuration](server.md) for more information.
 - If you are using Apache or Nginx, you may need to inform the `rootURL` parameter when calling `listen()`. Example:
     ```php
     // Sets the 'rootURL' to where the index.php is located.
@@ -115,7 +116,7 @@ $app->listen();
 ## Known Middlewares
 
 - [phputil/cors](https://github.com/thiagodp/cors) - [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) Middleware
-- [phputil/csrf](https://github.com/thiagodp/csrf) - Anti [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery) Middleware
+- [phputil/csrf](https://github.com/thiagodp/phputil-csrf) - Anti [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery) Middleware
 
 > ℹ Did you create a useful middleware? Open an Issue for including it here.
 
