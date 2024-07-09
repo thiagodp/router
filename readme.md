@@ -115,6 +115,7 @@ $app->listen();
 ## Known Middlewares
 
 - [phputil/cors](https://github.com/thiagodp/cors) - [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) Middleware
+- [phputil/csrf](https://github.com/thiagodp/csrf) - Anti [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery) Middleware
 
 > ℹ Did you create a useful middleware? Open an Issue for including it here.
 
@@ -455,7 +456,7 @@ interface HttpResponse {
      *
      * @param int $code HTTP status code.
      * @return bool
-     */    
+     */
     function isStatus( int $code ): bool;
 
     /**
@@ -481,7 +482,7 @@ interface HttpResponse {
      * @param string $header HTTP header.
      * @return string|null
      */
-    function getHeader( string $header ): ?string;    
+    function getHeader( string $header ): ?string;
 
     /**
      * Sets a redirect response.
