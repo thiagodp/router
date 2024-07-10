@@ -486,6 +486,13 @@ interface HttpResponse {
     function getHeader( string $header ): ?string;
 
     /**
+     * Removes a header.
+     *
+     * @param string $header Header to remove.
+     */
+    function removeHeader( string $header ): void;
+
+    /**
      * Sets a redirect response.
      *
      * @param int $statusCode HTTP status code.

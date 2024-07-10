@@ -71,7 +71,7 @@ class RealHttpResponse implements HttpResponse {
     /** @inheritDoc */
     function isStatus( int $code ): bool {
         return $code === $this->statusCode;
-    }       
+    }
 
     /** @inheritDoc */
     function header( $header, $value = null ): HttpResponse {
@@ -95,6 +95,12 @@ class RealHttpResponse implements HttpResponse {
     /** @inheritDoc */
     function hasHeader( string $header ): bool {
         return array_key_exists( $header, $this->headers );
+    }
+
+    /** @inheritDoc */
+    function removeHeader( string $header ): void {
+        unset( $this->headers[ $header ] );
+        @header_remove( $header );
     }
 
     /** @inheritDoc */

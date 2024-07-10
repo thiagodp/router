@@ -16,7 +16,7 @@ interface HttpResponse {
      *
      * @param int $code HTTP status code.
      * @return bool
-     */    
+     */
     function isStatus( int $code ): bool;
 
     /**
@@ -42,7 +42,14 @@ interface HttpResponse {
      * @param string $header HTTP header.
      * @return string|null
      */
-    function getHeader( string $header ): ?string;    
+    function getHeader( string $header ): ?string;
+
+    /**
+     * Removes a header.
+     *
+     * @param string $header Header to remove.
+     */
+    function removeHeader( string $header ): void;
 
     /**
      * Sets a redirect response.
