@@ -44,6 +44,11 @@ class RealHttpResponse implements HttpResponse {
     public function __construct( $avoidOutput = false, $avoidClearing = false ) {
         $this->avoidOutput = $avoidOutput;
         $this->avoidClearing = $avoidClearing;
+
+        // Copy the headers about to send
+        $this->headers = @headers_list();
+        // Remove the headers about to send
+        @header_remove();
     }
 
     //
@@ -256,7 +261,7 @@ class RealHttpResponse implements HttpResponse {
 
     protected function sendHeaders( $clear ): void {
         if ( $this->statusCode !== 0 ) {
-            http_response_code( $this->statusCode );
+            @http_response_code( $this->statusCode );
         }
         foreach ( $this->headers as $header => $value ) {
             @header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
