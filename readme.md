@@ -92,7 +92,7 @@ $app->listen();
 
 [See all the examples](https://github.com/thiagodp/router/tree/main/examples/)
 
-> ℹ To help us with an example, just submit a Pull Request or open an Issue with the code.
+> ℹ Interested in helping us? Submit a Pull Request with a new example or open an Issue with your code.
 
 ## Features
 
