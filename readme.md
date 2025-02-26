@@ -246,6 +246,8 @@ $app->
     ;
 ```
 
+IMPORTANT: Don't forget to finish a route/group with the method `end()`.
+
 #### end
 
 Method that finishes a route group and returns to the group parent.
