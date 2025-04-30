@@ -1,6 +1,7 @@
-[![Version](https://poser.pugx.org/phputil/router/v?style=flat-square)](https://packagist.org/packages/phputil/router)
-![Build](https://github.com/thiagodp/router/actions/workflows/ci.yml/badge.svg?style=flat)
-[![License](https://poser.pugx.org/phputil/router/license?style=flat-square)](https://packagist.org/packages/phputil/router)
+[![Version](https://poser.pugx.org/phputil/router/v?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
+![Build](https://github.com/thiagodp/router/actions/workflows/ci.yml/badge.svg?style=for-the-badge&color=green)
+[![License](https://poser.pugx.org/phputil/router/license?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
+[![Downloads](https://poser.pugx.org/phputil/router/downloads?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
 
 # phputil/router
 
@@ -20,17 +21,26 @@
 composer require phputil/router
 ```
 
-👉 You may also like to install [phputil/cors](https://github.com/thiagodp/cors).
+_Was it useful for you? Consider giving it a Star ⭐_
 
-### Notes
+### Installation notes
 
-- Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server).
-  - See [Server Configuration](server.md) for more information.
-- If you are using Apache or Nginx, you may need to inform the `rootURL` parameter when calling `listen()`. Example:
+- Unlike ExpressJS, `phputil/router` needs an HTTP server to run (if the request is not [mocked](#mocking-an-http-request)). You can use the HTTP server of your choice, such as `php -S localhost:80`, [Apache](https://httpd.apache.org/), [Nginx](https://nginx.org/) or [http-server](https://www.npmjs.com/package/http-server). **See [Server Configuration](server.md) for more information.**
+- If you are using **Apache** or **Nginx**, you may need to inform the `rootURL` parameter when calling `listen()`. Example:
     ```php
     // Sets the 'rootURL' to where the index.php is located.
     $app->listen( [ 'rootURL' => dirname( $_SERVER['PHP_SELF'] ) ] );
     ```
+
+## Middlewares
+
+You may also want to install the following middlewares:
+
+- [phputil/cors](https://github.com/thiagodp/cors) - [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) Middleware
+- [phputil/csrf](https://github.com/thiagodp/phputil-csrf) - Anti [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery) Middleware
+
+> ℹ Did you create a useful middleware? Open an Issue for including it here.
+
 
 ## Examples
 
@@ -113,13 +123,6 @@ $app->listen();
 - [🕑] _(soon)_ Deal with `multipart/form-data` on `PUT` and `PATCH`
 
 
-## Known Middlewares
-
-- [phputil/cors](https://github.com/thiagodp/cors) - [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) Middleware
-- [phputil/csrf](https://github.com/thiagodp/phputil-csrf) - Anti [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery) Middleware
-
-> ℹ Did you create a useful middleware? Open an Issue for including it here.
-
 
 ## API
 
@@ -179,11 +182,10 @@ Examples:
 use \phputil\router\HttpRequest;
 use \phputil\router\HttpResponse;
 
-$app->
-    get( '/hello', function( HttpRequest $req, HttpResponse $res ) {
+$app->get( '/hello', function( HttpRequest $req, HttpResponse $res ) {
         $res->send( 'Hello!' );
     } )
-    get( '/world',
+    ->get( '/world',
         // Middleware
         function( HttpRequest $req, HttpResponse $res, bool &$stop ) {
             if ( $req->header( 'Origin' ) === 'http://localhost' ) {
@@ -241,12 +243,12 @@ $app->
         ->get( '/emails', function( $req, $res ) { /* GET /employees/emails  */ } )
         ->get( '/phone-numbers', function( $req, $res ) { /* GET /employees/phone-numbers */ } )
         ->post( '/children', function( $req, $res ) { /* POST /employees/children */ } )
-        ->end() // Finishes the group and back to "/"
+        ->end() // 👈 Finishes the group and back to "/"
     ->get( '/customers', function( $req, $res ) { /* GET /customers */ } )
     ;
 ```
 
-IMPORTANT: Don't forget to finish a route/group with the method `end()`.
+⚠️ Don't forget to finish a route/group with the method `end()`.
 
 #### end
 
@@ -261,7 +263,7 @@ $app->
             ->get( '/emails', function( $req, $res ) { /* GET /products/suppliers/emails */ } )
             ->end() // Finishes "/suppliers" and back to "/products"
         ->get( '/sizes', function( $req, $res ) { /* GET /products/sizes  */ } )
-        ->end() // Finishes "/products" and back to "/"
+        ->end() // 👈 Finishes "/products" and back to "/"
     ->get( '/sales', function( $req, $res ) { /* GET /sales  */ } )
     ;
 ```
@@ -404,6 +406,8 @@ interface HttpRequest {
 ### ExtraData
 
 > Extra, user-defined data.
+
+Syntax:
 
 ```php
 class ExtraData {
