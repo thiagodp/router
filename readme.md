@@ -1,7 +1,7 @@
-[![Version](https://poser.pugx.org/phputil/router/v?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
+![Packagist Version](https://img.shields.io/packagist/v/phputil/router?style=for-the-badge&color=green)
+![GitHub License](https://img.shields.io/github/license/thiagodp/router?style=for-the-badge&color=green)
+![Packagist Downloads](https://img.shields.io/packagist/dt/phputil/router?style=for-the-badge&color=green)
 ![Build](https://github.com/thiagodp/router/actions/workflows/ci.yml/badge.svg?style=for-the-badge&color=green)
-[![License](https://poser.pugx.org/phputil/router/license?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
-[![Downloads](https://poser.pugx.org/phputil/router/downloads?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
 
 # phputil/router
 
