@@ -492,11 +492,22 @@ interface HttpResponse {
     function getHeader( string $header ): ?string;
 
     /**
-     * Removes a header.
+     * Returns all the response headers with the given key, as a matrix.
+     * Example: `[[ 'Set-Cookie' => 'foo=1;' ], [ 'Set-Cookie' => 'bar=hello;' ]]`
+     *
+     * @param string $header HTTP header.
+     * @return string[]
+     */
+    function getHeaders( string $header ): array;
+
+    /**
+     * Removes the first header with the given key. Optionally removes all the headers with the given key.
      *
      * @param string $header Header to remove.
+     * @param bool $removeAll Option (default `false`) to remove all the headers with the given key.
+     * @return int The number of removed headers.
      */
-    function removeHeader( string $header ): void;
+    function removeHeader( string $header, bool $removeAll = false ): int;
 
     /**
      * Sets a redirect response.

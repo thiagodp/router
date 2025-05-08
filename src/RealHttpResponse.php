@@ -38,7 +38,7 @@ class RealHttpResponse implements HttpResponse {
     protected $avoidClearing = false; // For testing purposes
 
     protected $statusCode = 0; // 0 = not change the default
-    protected $headers = []; // matrix
+    protected $headers = []; // matrix with pairs of content, like [ [ 'Set-Cookie', 'foo=1' ], [ 'Set-Cookie', 'hello=world' ], [ 'Content-Type', 'application/json' ] ]
     protected $body = [];
 
     public function __construct( $avoidOutput = false, $avoidClearing = false ) {
@@ -133,16 +133,19 @@ class RealHttpResponse implements HttpResponse {
     }
 
     /** @inheritDoc */
-    function removeHeader( string $header, bool $removeAll = false ): void {
+    function removeHeader( string $header, bool $removeAll = false ): int {
+        $removalCount = 0;
         foreach ( $this->headers as $index => [ $key ] ) {
             if ( $header === $key ) {
                 unset( $this->headers[ $index ] );
                 @header_remove( $header );
+                $removalCount++;
                 if ( ! $removeAll ) {
                     break;
                 }
             }
         }
+        return $removalCount;
     }
 
     /** @inheritDoc */

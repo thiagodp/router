@@ -62,11 +62,13 @@ interface HttpResponse {
     function getHeaders( string $header ): array;
 
     /**
-     * Removes a header.
+     * Removes the first header with the given key. Optionally removes all the headers with the given key.
      *
      * @param string $header Header to remove.
+     * @param bool $removeAll Option (default `false`) to remove all the headers with the given key.
+     * @return int The number of removed headers.
      */
-    function removeHeader( string $header ): void;
+    function removeHeader( string $header, bool $removeAll = false ): int;
 
     /**
      * Sets a redirect response.
