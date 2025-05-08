@@ -117,11 +117,16 @@ class RealHttpResponse implements HttpResponse {
     }
 
     /** @inheritDoc */
-    public function getHeaders( string $header ): array {
+    public function getHeaders( string $header = '' ): array {
+
+        if ( empty( $header ) ) {
+            return $this->headers;
+        }
+
         $found = [];
         foreach ( $this->headers as [ $key, $value ] ) {
             if ( $header === $key ) {
-                $found []= [ $key => $value ];
+                $found []= [ $key, $value ];
             }
         }
         return $found;

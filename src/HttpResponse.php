@@ -53,13 +53,17 @@ interface HttpResponse {
     function getHeader( string $header ): ?string;
 
     /**
-     * Returns all the response headers with the given key, as a matrix.
-     * Example: `[[ 'Set-Cookie' => 'foo=1;' ], [ 'Set-Cookie' => 'bar=hello;' ]]`
+     * Returns all the response headers. If a header key is given, it returns all the headers with the given key.
+     * The headers are returned as an array of [ key, value ] pairs.
      *
-     * @param string $header HTTP header.
+     * Example: `[['Set-Cookie', 'foo=1;'], ['Set-Cookie', 'bar=hello;'], ['Content-Type', 'application/json']]`
+     *
+     * Note that the inner arrays do not have keys.
+     *
+     * @param string $header HTTP header. Optional, it default to `''`.
      * @return string[]
      */
-    function getHeaders( string $header ): array;
+    function getHeaders( string $header = '' ): array;
 
     /**
      * Removes the first header with the given key. Optionally removes all the headers with the given key.
