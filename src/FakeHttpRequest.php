@@ -12,7 +12,7 @@ class FakeHttpRequest implements HttpRequest {
 
     private $_url = '';
     private $_queries = [];
-    private $_headers = [];
+    private $_headers = []; // Array containing every header. A header value can be an array (!)
     private $_rawBody = '';
     private $_method = '';
     private $_cookies = [];

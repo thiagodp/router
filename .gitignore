@@ -3,3 +3,4 @@ coverage
 output
 .phpdoc
 .vscode
+*.cache

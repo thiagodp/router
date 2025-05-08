@@ -29,6 +29,14 @@ interface HttpResponse {
     function header( string $header, $value ): HttpResponse;
 
     /**
+     * Returns the number of headers with the given key.
+     *
+     * @param string $header Key
+     * @return int
+     */
+    function headerCount( string $header ): int;
+
+    /**
      * Indicates if the response has the given HTTP header.
      *
      * @param string $header HTTP header.
@@ -37,12 +45,21 @@ interface HttpResponse {
     function hasHeader( string $header ): bool;
 
     /**
-     * Returns the response header, if it exists. Returns `null` otherwise.
+     * Returns the first response header with the given key, or `null` if the header doesn't exist.
      *
      * @param string $header HTTP header.
      * @return string|null
      */
     function getHeader( string $header ): ?string;
+
+    /**
+     * Returns all the response headers with the given key, as a matrix.
+     * Example: `[[ 'Set-Cookie' => 'foo=1;' ], [ 'Set-Cookie' => 'bar=hello;' ]]`
+     *
+     * @param string $header HTTP header.
+     * @return string[]
+     */
+    function getHeaders( string $header ): array;
 
     /**
      * Removes a header.

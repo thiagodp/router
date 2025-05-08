@@ -37,6 +37,7 @@ $app->route( '/tasks' )
         $t = (array) json_encode( $req->rawBody() );
         $tasks[ $key ] = $t;
         $res->send( $req->param( 'id' ) );
-    } );
+    } )
+    ->end();
 
 $app->listen();

@@ -18,7 +18,7 @@ interface HttpRequest {
     /** Returns all HTTP request headers */
     function headers(): array;
 
-    /** Returns the header with the given case-insensitive name, or `null` if not found. */
+    /** Returns the first header with the given case-insensitive name, or `null` if not found. */
     function header( string $name ): ?string;
 
     /** Returns the raw body or `null` on failure. */

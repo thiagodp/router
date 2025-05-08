@@ -62,8 +62,7 @@ describe( 'response', function() {
         it( 'adds the given path to a Location header', function() {
             $r = $this->resp->redirect( 301, "/foo" )->dump();
             expect( $r[ 'statusCode' ] )->toBe( 301 );
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Location' ] )->toBe( '/foo' );
+            expect( $this->resp->getHeader( 'Location' ) )->toBe( '/foo' );
         } );
 
     } );
@@ -72,45 +71,48 @@ describe( 'response', function() {
     describe( 'cookie', function() {
 
         it( 'adds a Set-Cookie header', function() {
-            $r = $this->resp->cookie( 'foo', 'bar' )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=bar' );
+            $this->resp->cookie( 'foo', 'bar' );
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+            expect( $value )->toBe( 'foo=bar' );
         } );
 
         it( 'adds the cookie option "Secure" without a value it is set to 1', function() {
-            $r = $this->resp->cookie( 'foo', 'bar', [ 'secure' => 1 ] )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=bar; Secure;' );
+            $this->resp->cookie( 'foo', 'bar', [ 'secure' => 1 ] );
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+            expect( $value )->toBe( 'foo=bar; Secure;' );
         } );
 
         it( 'add the cookie option "Secure" without a value it is set to true', function() {
-            $r = $this->resp->cookie( 'foo', 'bar', [ 'secure' => true ] )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=bar; Secure;' );
+            $this->resp->cookie( 'foo', 'bar', [ 'secure' => true ] );
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+            expect( $value )->toBe( 'foo=bar; Secure;' );
         } );
 
         it( 'adds the cookie option HttpOnly without a value it is set to 1', function() {
-            $r = $this->resp->cookie( 'foo', 'bar', [ 'httpOnly' => 1 ] )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=bar; HttpOnly;' );
+            $this->resp->cookie( 'foo', 'bar', [ 'httpOnly' => 1 ] );
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+            expect( $value )->toBe( 'foo=bar; HttpOnly;' );
         } );
 
         it( 'adds the cookie option HttpOnly without a value it is set to true', function() {
-            $r = $this->resp->cookie( 'foo', 'bar', [ 'httpOnly' => true ] )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=bar; HttpOnly;' );
+            $this->resp->cookie( 'foo', 'bar', [ 'httpOnly' => true ] );
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+            expect( $value )->toBe( 'foo=bar; HttpOnly;' );
         } );
 
         it( 'adds other options with their corresponding values', function() {
-            $r = $this->resp->cookie( 'foo', 'bar', [
+
+            $this->resp->cookie( 'foo', 'bar', [
                 'domain' => 'sub.example.com',
                 'path' => '/dir',
                 'maxAge' => 0,
                 'secure' => true,
                 'httpOnly' => true
-            ] )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=bar; Domain=sub.example.com; Path=/dir; Max-Age=0; Secure; HttpOnly;' );
+            ] );
+
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+
+            expect( $value )->toBe( 'foo=bar; Domain=sub.example.com; Path=/dir; Max-Age=0; Secure; HttpOnly;' );
         } );
 
     } );
@@ -119,15 +121,18 @@ describe( 'response', function() {
     describe( 'clearCookie', function() {
 
         it( 'clears the cookie value', function() {
-            $r = $this->resp->clearCookie( 'foo', [
+
+            $this->resp->clearCookie( 'foo', [
                 'domain' => 'sub.example.com',
                 'path' => '/dir',
                 'maxAge' => 0,
                 'secure' => true,
                 'httpOnly' => true
-            ] )->dump();
-            expect( $r[ 'headers' ] )->toHaveLength( 1 );
-            expect( $r[ 'headers' ][ 'Set-Cookie' ] )->toBe( 'foo=; Domain=sub.example.com; Path=/dir; Max-Age=0; Secure; HttpOnly;' );
+            ] );
+
+            $value = $this->resp->getHeader( 'Set-Cookie' );
+
+            expect( $value )->toBe( 'foo=; Domain=sub.example.com; Path=/dir; Max-Age=0; Secure; HttpOnly;' );
         } );
 
     } );

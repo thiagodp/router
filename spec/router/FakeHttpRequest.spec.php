@@ -14,6 +14,22 @@ describe( 'FakeHttpRequest', function() {
         } );
 
     });
-        
+
+
+    describe( 'headers', function() {
+
+        it( 'returns all headers by default', function() {
+            $req = new FakeHttpRequest();
+            $req->withHeaders( [
+                'foo' => 'bar',
+                'zoo' => [ 'hello', 'world' ]
+            ] );
+            $r = $req->headers();
+
+            expect( $r[ 'foo' ] )->toBe('bar' );
+            expect( $r[ 'zoo' ] )->toBe('hello' );
+        } );
+    } );
+
 } );
 ?>

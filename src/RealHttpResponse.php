@@ -38,7 +38,7 @@ class RealHttpResponse implements HttpResponse {
     protected $avoidClearing = false; // For testing purposes
 
     protected $statusCode = 0; // 0 = not change the default
-    protected $headers = [];
+    protected $headers = []; // matrix
     protected $body = [];
 
     public function __construct( $avoidOutput = false, $avoidClearing = false ) {
@@ -46,7 +46,10 @@ class RealHttpResponse implements HttpResponse {
         $this->avoidClearing = $avoidClearing;
 
         // Copy the headers about to send
-        $this->headers = @headers_list();
+        $headers = @headers_list();
+        foreach ( $headers as $key => $value ) {
+            $this->addHeader( $key, $value );
+        }
         // Remove the headers about to send
         @header_remove();
     }
@@ -81,10 +84,10 @@ class RealHttpResponse implements HttpResponse {
     /** @inheritDoc */
     function header( $header, $value = null ): HttpResponse {
         if ( is_string( $header ) ) {
-            $this->setHeader( $header, $value );
+            $this->addHeader( $header, $value );
         } else if ( is_array( $header ) ) {
             foreach ( $header as $h => $v ) {
-                $this->setHeader( $h, $v );
+                $this->addHeader( $h, $v );
             }
         } else {
             throw new LogicException( MSG_HEADER_PARAMETER_INVALID );
@@ -93,26 +96,60 @@ class RealHttpResponse implements HttpResponse {
     }
 
     /** @inheritDoc */
+    function headerCount( string $header ): int {
+        $count = 0;
+        foreach ( $this->headers as [ $key ] ) {
+            if ( $header === $key ) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /** @inheritDoc */
     public function getHeader( string $header ): ?string {
-        return $this->headers[ $header ] ?? null;
+        foreach ( $this->headers as [ $key, $value ] ) {
+            if ( $header === $key ) {
+                return $value;
+            }
+        }
+        return null;
+    }
+
+    /** @inheritDoc */
+    public function getHeaders( string $header ): array {
+        $found = [];
+        foreach ( $this->headers as [ $key, $value ] ) {
+            if ( $header === $key ) {
+                $found []= [ $key => $value ];
+            }
+        }
+        return $found;
     }
 
     /** @inheritDoc */
     function hasHeader( string $header ): bool {
-        return array_key_exists( $header, $this->headers );
+        return $this->headerCount( $header ) > 0;
     }
 
     /** @inheritDoc */
-    function removeHeader( string $header ): void {
-        unset( $this->headers[ $header ] );
-        @header_remove( $header );
+    function removeHeader( string $header, bool $removeAll = false ): void {
+        foreach ( $this->headers as $index => [ $key ] ) {
+            if ( $header === $key ) {
+                unset( $this->headers[ $index ] );
+                @header_remove( $header );
+                if ( ! $removeAll ) {
+                    break;
+                }
+            }
+        }
     }
 
     /** @inheritDoc */
     function redirect( $statusCode, $path = null ): HttpResponse {
         $this->status( $statusCode );
         if ( ! is_null( $path ) ) {
-            $this->setHeader( HEADER_LOCATION, $path );
+            $this->addHeader( HEADER_LOCATION, $path );
         }
         return $this;
     }
@@ -155,7 +192,7 @@ class RealHttpResponse implements HttpResponse {
                 $content .= ";" . $additional;
             }
         }
-        return $this->setHeader( HEADER_SET_COOKIE, $content );
+        return $this->addHeader( HEADER_SET_COOKIE, $content );
     }
 
     /** @inheritDoc */
@@ -163,14 +200,14 @@ class RealHttpResponse implements HttpResponse {
         return $this->cookie( $name, '', $options );
     }
 
-    private function setHeader( $header, $value ): HttpResponse {
+    private function addHeader( $header, $value ): HttpResponse {
         if ( ! is_string( $header ) ) {
             throw new LogicException( MSG_HEADER_KEY_MUST_BE_STRING );
         }
         if ( is_null( $value ) ) {
             throw new LogicException( MSG_HEADER_VALUE_CANNOT_BE_NULL );
         }
-        $this->headers[ $header ] = $value;
+        $this->headers[] = [ $header, $value ];
         return $this;
     }
 
@@ -181,7 +218,7 @@ class RealHttpResponse implements HttpResponse {
         if ( $useUTF8 && mb_strripos( $value, 'text/' ) === 0 && mb_strripos( $value, 'charset' ) !== false ) {
             $value .= ';charset=UTF-8';
         }
-        return $this->setHeader( HEADER_CONTENT_TYPE, $value );
+        return $this->addHeader( HEADER_CONTENT_TYPE, $value );
     }
 
     /** @inheritDoc */
@@ -195,7 +232,7 @@ class RealHttpResponse implements HttpResponse {
 
     /** @inheritDoc */
     function json( $body ): HttpResponse {
-        $this->setHeader( HEADER_CONTENT_TYPE, MIME_JSON_UTF8 );
+        $this->addHeader( HEADER_CONTENT_TYPE, MIME_JSON_UTF8 );
         if ( is_array( $body ) || is_object( $body ) ) {
             $result = json_encode( $body );
             if ( $result === false ) {
@@ -227,11 +264,9 @@ class RealHttpResponse implements HttpResponse {
         $fileDisposition = 'attachment; path=' . basename( $path );
 
         $this->status( 200 );
-        $this->header( [
-            'Content-Type' => $mime,
-            'Content-Length' => $fileSize,
-            'Content-Disposition' => $fileDisposition,
-        ] );
+        $this->addHeader( 'Content-Type', $mime );
+        $this->addHeader( 'Content-Length', $fileSize );
+        $this->addHeader( 'Content-Disposition', $fileDisposition );
 
         // // No cache
         // header('Cache-Control: must-revalidate');
@@ -263,7 +298,7 @@ class RealHttpResponse implements HttpResponse {
         if ( $this->statusCode !== 0 ) {
             @http_response_code( $this->statusCode );
         }
-        foreach ( $this->headers as $header => $value ) {
+        foreach ( $this->headers as [ $header, $value ] ) {
             @header( $header . HEADER_TO_VALUE_SEPARATOR . $value );
         }
         if ( $clear && ! $this->avoidClearing ) {

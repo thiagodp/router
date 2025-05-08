@@ -2,27 +2,13 @@
 namespace phputil\router;
 
 /**
- * Route to Regex result.
- */
-class R2R {
-    public string $regex;
-    public array $params;
-    public bool $isGroupRoute;
-    function __construct( string $regex, array $params = [], bool $isGroupRoute = false ) {
-        $this->regex = $regex;
-        $this->params = $params;
-        $this->isGroupRoute = $isGroupRoute;
-    }
-}
-
-/**
  * Transform a route into a regex.
  *
  * @param string $route Route
  * @param bool $isGroupRoute Indicates if it is a group route.
- * @return R2R
+ * @return RouteToRegexResult
  */
-function routeToRegex( string $route, bool $isGroupRoute = false ): R2R {
+function routeToRegex( string $route, bool $isGroupRoute = false ): RouteToRegexResult {
 
     // Asterisk replacement
     $asteriskRegex = '[\pL 0-9\_\-\.\,\;\%\?\=\!\#\&\+\*\$\@\~\[\]\(\)]';
@@ -52,7 +38,7 @@ function routeToRegex( string $route, bool $isGroupRoute = false ): R2R {
     }
 
     $r = $isGroupRoute ? ( '/^' . $r . '/u' ) : ( '/^' . $r . '$/u' );
-    return new R2R( $r, $matches, $isGroupRoute );
+    return new RouteToRegexResult( $r, $matches, $isGroupRoute );
 }
 
 /**

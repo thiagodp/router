@@ -17,7 +17,6 @@ require_once 'RouterOptions.php';
 
 use function call_user_func_array;
 use function is_array;
-use function is_object;
 
 // STATUS ---------------------------------------------------------------------
 
@@ -59,6 +58,7 @@ class Router extends GroupEntry {
                     return false;
                 }
 
+                // @phpstan-ignore-next-line
                 if ( $stop ) {
                     $hasStopped = true;
                     break;
@@ -124,14 +124,12 @@ class Router extends GroupEntry {
         if ( is_array( $options ) ) {
             $opt = ( new RouterOptions() )->fromArray( $options );
         } else {
-            $opt = ( is_object( $options ) && $options instanceof RouterOptions )
-                ? $options
-                : new RouterOptions();
+            $opt = ( $options instanceof RouterOptions ) ? $options : new RouterOptions();
         }
 
-        $req = ( is_object( $opt->req ) && $opt->req instanceof HttpRequest ) ? $opt->req : new RealHttpRequest();
+        $req = ( $opt->req instanceof HttpRequest ) ? $opt->req : new RealHttpRequest();
 
-        $res = ( is_object( $opt->res ) && $opt->res instanceof HttpResponse ) ? $opt->res : new RealHttpResponse();
+        $res = ( $opt->res instanceof HttpResponse ) ? $opt->res : new RealHttpResponse();
 
         // var_dump( $opt, $req, $res );
         // die();
@@ -184,6 +182,7 @@ class Router extends GroupEntry {
             // }
 
             $ok = ! ( call_user_func_array( $callback, $args ) === false );
+            // @phpstan-ignore-next-line
             if ( ! $ok || $stop ) {
                 break;
             }

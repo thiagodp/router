@@ -10,6 +10,7 @@ use function mb_substr;
 use function str_replace;
 use function ucwords;
 
+// TODO: change to allow repeated keys - options: 1) matrix of key-value 2) multiple values for a given key
 function extractHeaders( array &$array ) {
 
     $headers = [];
