@@ -20,67 +20,67 @@ class FakeHttpRequest implements HttpRequest {
     private $_extra = null;
 
     /** @inheritDoc */
-    function url(): ?string {
+    public function url(): ?string {
         return $this->_url;
     }
 
     /** @inheritDoc */
-    function urlWithoutQueries(): ?string {
+    public function urlWithoutQueries(): ?string {
         return removeQueries( $this->url() );
     }
 
     /** @inheritDoc */
-    function queries(): array {
+    public function queries(): array {
         return $this->_queries;
     }
 
     /** @inheritDoc */
-    function headers(): array {
+    public function headers(): array {
         return $this->_headers;
     }
 
     /** @inheritDoc */
-    function header( $name ): ?string {
+    public function header( $name ): ?string {
         return headerWithName( $name, $this->_headers );
     }
 
     /** @inheritDoc */
-    function rawBody(): ?string {
+    public function rawBody(): ?string {
         return $this->_rawBody;
     }
 
     /** @inheritDoc */
-    function body() {
+    public function body() {
         return $this->_rawBody;
     }
 
     /** @inheritDoc */
-    function method(): ?string {
+    public function method(): ?string {
         return $this->_method;
     }
 
     /** @inheritDoc */
-    function cookies(): array {
+    public function cookies(): array {
         return $this->_cookies;
     }
 
     /** @inheritDoc */
-    function cookie( $key ): ?string {
+    public function cookie( $key ): ?string {
         return isset( $this->_cookies[ $key ] ) ? $this->_cookies[ $key ] : null;
     }
 
     /** @inheritDoc */
-    function param( $name ): ?string {
+    public function param( $name ): ?string {
         return isset( $this->_params[ $name ] ) ? $this->_params[ $name ] : null;
     }
 
     /** @inheritDoc */
-    function params(): array {
+    public function params(): array {
         return $this->_params;
     }
 
     /** @inheritDoc */
-    function extra(): ExtraData {
+    public function extra(): ExtraData {
         if ( $this->_extra === null ) {
             $this->_extra = new ExtraData();
         }
@@ -88,7 +88,7 @@ class FakeHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function withParams( array $params ): HttpRequest {
+    public function withParams( array $params ): HttpRequest {
         $this->_params = $params;
         return $this;
     }
@@ -97,41 +97,41 @@ class FakeHttpRequest implements HttpRequest {
     // Extra, build methods
     //
 
-    function withUrl( $url ): FakeHttpRequest {
+    public function withUrl( $url ): FakeHttpRequest {
         $this->_url = $url;
         return $this;
     }
 
-    function withQueries( array $queries ): FakeHttpRequest {
+    public function withQueries( array $queries ): FakeHttpRequest {
         $this->_queries = $queries;
         return $this;
     }
 
-    function withHeaders( array $headers ): FakeHttpRequest {
+    public function withHeaders( array $headers ): FakeHttpRequest {
         $this->_headers = $headers;
         return $this;
     }
 
-    function withHeader( $key, $value ): FakeHttpRequest {
+    public function withHeader( $key, $value ): FakeHttpRequest {
         $this->_headers[ $key ] = $value;
         return $this;
     }
 
-    function withRawBody( $rawBody ): FakeHttpRequest {
+    public function withRawBody( $rawBody ): FakeHttpRequest {
         $this->_rawBody = $rawBody;
         return $this;
     }
 
-    function withBody( $body ): FakeHttpRequest {
+    public function withBody( $body ): FakeHttpRequest {
         return $this->withRawBody( $body );
     }
 
-    function withMethod( $method ): FakeHttpRequest {
+    public function withMethod( $method ): FakeHttpRequest {
         $this->_method = $method;
         return $this;
     }
 
-    function withCookies( array $cookies ): FakeHttpRequest {
+    public function withCookies( array $cookies ): FakeHttpRequest {
         $this->_cookies = $cookies;
         return $this;
     }

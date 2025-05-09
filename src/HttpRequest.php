@@ -7,22 +7,22 @@ namespace phputil\router;
 interface HttpRequest {
 
     /** Returns the current URL or `null` on failure. */
-    function url(): ?string;
+    public function url(): ?string;
 
     /** Returns the current URL without any queries. E.g. `/foo?bar=10` -> `/foo` */
-    function urlWithoutQueries(): ?string;
+    public function urlWithoutQueries(): ?string;
 
     /** Returns the URL queries. E.g. `/foo?bar=10&zoo=A` -> `['bar'=>'10', 'zoo'=>'A']` */
-    function queries(): array;
+    public function queries(): array;
 
     /** Returns all HTTP request headers */
-    function headers(): array;
+    public function headers(): array;
 
     /** Returns the first header with the given case-insensitive name, or `null` if not found. */
-    function header( string $name ): ?string;
+    public function header( string $name ): ?string;
 
     /** Returns the raw body or `null` on failure. */
-    function rawBody(): ?string;
+    public function rawBody(): ?string;
 
     /**
      * Returns the converted content, depending on the `Content-Type` header:
@@ -30,13 +30,13 @@ interface HttpRequest {
      *   - For `application/json`, it returns an `object` or an `array` (depending on the content).
      *   - Otherwise it returns a `string`, or `null` on failure.
      */
-    function body();
+    public function body();
 
     /** Returns the HTTP request method or `null` on failure. */
-    function method(): ?string;
+    public function method(): ?string;
 
     /** Returns all cookies as an array (map). */
-    function cookies(): array;
+    public function cookies(): array;
 
     /**
      * Returns the cookie value with the given case-insensitive key or `null` if not found.
@@ -44,7 +44,7 @@ interface HttpRequest {
      * @param string $key Cookie key.
      * @return string|null
      */
-    function cookie( string $key ): ?string;
+    public function cookie( string $key ): ?string;
 
     /**
      * Returns a URL query or route parameter with the given name (key),
@@ -53,24 +53,24 @@ interface HttpRequest {
      * @param string $name Parameter name.
      * @return string
      */
-    function param( string $name ): ?string;
+    public function param( string $name ): ?string;
 
     /**
      * Returns all the URL queries and route parameters as an array (map).
      * @return array
      */
-    function params(): array;
+    public function params(): array;
 
     /**
      * Returns extra, user-configurable data.
      * @return ExtraData
      */
-    function extra(): ExtraData;
+    public function extra(): ExtraData;
 
     /**
      * Set the params. Do NOT use it directly.
      */
-    function withParams( array $params ): HttpRequest;
+    public function withParams( array $params ): HttpRequest;
 }
 
 ?>

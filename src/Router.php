@@ -29,8 +29,8 @@ class Router extends GroupEntry {
 
     // private $conditions = []; // Same structure as $entries
 
-    function __construct() {
-        parent::__construct('');
+    public function __construct() {
+        parent::__construct( '' );
     }
 
     // TODO: refactor
@@ -98,7 +98,17 @@ class Router extends GroupEntry {
             // It is was a group, find in children
             $stop = false;
             $found = $this->findRoute(
-                $req, $res, $path, $httpMethod, $newRoute, $entry->children, $routeEntry, $variables, $routeMatched, $stop );
+                $req,
+                $res,
+                $path,
+                $httpMethod,
+                $newRoute,
+                $entry->children,
+                $routeEntry,
+                $variables,
+                $routeMatched,
+                $stop
+            );
             if ( $found ) {
                 return true;
             }
@@ -111,14 +121,13 @@ class Router extends GroupEntry {
         return false;
     }
 
-
     /**
      * Analyzes the registered routes and the HTTP request for determining if they match and executing the given function.
      *
      * @param array|RouterOptions $options Options. listen( [ 'rootURL' => dirname( $_SERVER[ 'PHP_SELF' ] ) ] )
      * @return array
      */
-    function listen( $options = [] ) {
+    public function listen( $options = [] ) {
 
         $opt = null;
         if ( is_array( $options ) ) {
@@ -145,14 +154,24 @@ class Router extends GroupEntry {
         $hasStopped = false;
 
         $found = $this->findRoute(
-            $req, $res, $path, $httpMethod, $this->route, $this->children, $routeEntry, $variables, $routeMatched, $hasStopped );
+            $req,
+            $res,
+            $path,
+            $httpMethod,
+            $this->route,
+            $this->children,
+            $routeEntry,
+            $variables,
+            $routeMatched,
+            $hasStopped
+        );
 
         if ( $hasStopped ) {
             return [ $found, $req, $res, $variables ];
         }
 
         // Route exists but its method is not allowed
-        if ( $routeMatched && ! isset( $routeEntry )  ) { // Route matched but has no entry
+        if ( $routeMatched && ! isset( $routeEntry ) ) { // Route matched but it does not have an entry
             $res->status( STATUS_METHOD_NOT_ALLOWED )->end();
             return [ false, $req, $res, $variables ];
         }

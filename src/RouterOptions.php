@@ -39,9 +39,18 @@ class RouterOptions {
         return $this;
     }
 
-    function withRootURL( $value ) { $this->rootURL = $value; return $this; }
-    function withReq( $value ) { $this->req = $value; return $this; }
-    function withRes( $value ) { $this->res = $value; return $this; }
+    public function withRootURL( $value ) {
+        $this->rootURL = $value;
+        return $this;
+    }
+    public function withReq( $value ) {
+        $this->req = $value;
+        return $this;
+    }
+    public function withRes( $value ) {
+        $this->res = $value;
+        return $this;
+    }
 }
 
 ?>

@@ -5,12 +5,12 @@ use function str_replace;
 use function implode;
 
 interface Entry {
-    function type();
+    public function type();
 }
 
-const ENTRY_HTTP        = 'h';
-const ENTRY_GROUP       = 'g';
-const ENTRY_MIDDLEWARE  = 'm';
+const ENTRY_HTTP = 'h';
+const ENTRY_GROUP = 'g';
+const ENTRY_MIDDLEWARE = 'm';
 
 /**
  * Join routes in a single URL path.

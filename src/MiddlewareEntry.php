@@ -12,7 +12,7 @@ class MiddlewareEntry implements Entry {
         $this->callback = $callback;
     }
 
-    function type() {
+    public function type() {
         return ENTRY_MIDDLEWARE;
     }
 }

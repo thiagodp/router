@@ -13,11 +13,10 @@ function removeQualityValues( array &$input ) {
     $new = [];
     foreach ( $input as &$value ) {
         $r = explode( ';', trim( $value ) );
-        $new []= $r[ 0 ];
+        $new [] = $r[ 0 ];
     }
     return $new;
 }
-
 
 class When {
 
@@ -25,19 +24,19 @@ class When {
     private $router = null;
     private $route = '';
 
-    function __construct( &$httpRequest, &$router, $route ) {
+    public function __construct( &$httpRequest, &$router, $route ) {
         $this->headers = $httpRequest->headers();
         $this->router = $router;
         $this->route = $route;
     }
 
-    function end() {
+    public function end() {
         return $this;
     }
 
     // Accept
 
-    function acceptIsIn( array $desiredFormatsOrMimes ) {
+    public function acceptIsIn( array $desiredFormatsOrMimes ) {
         if ( array_search( MIME_ANY, $desiredFormatsOrMimes ) !== false ) { // Any MIME ?
             return true;
         }
@@ -57,10 +56,9 @@ class When {
         return false;
     }
 
-    function acceptCharsetIsIn( array $charsets ) {
-    }
+    public function acceptCharsetIsIn( array $charsets ) {}
 
-    function acceptEncodingIsIn( array $encodings ) {
+    public function acceptEncodingIsIn( array $encodings ) {
         if ( array_search( ENCODING_ANY, $encodings ) !== false ) { // Any encoding ?
             return true;
         }
@@ -76,13 +74,11 @@ class When {
         return false;
     }
 
-    function acceptLanguageIsIn( array $languages ) {
-    }
+    public function acceptLanguageIsIn( array $languages ) {}
 
     // Content-Type
 
-    function contentTypeIsIn( array $desiredFormatsOrMimes ) {
-    }
+    public function contentTypeIsIn( array $desiredFormatsOrMimes ) {}
 }
 
 ?>

@@ -8,7 +8,7 @@ class RouteToRegexResult {
     public string $regex;
     public array $params;
     public bool $isGroupRoute;
-    function __construct( string $regex, array $params = [], bool $isGroupRoute = false ) {
+    public function __construct( string $regex, array $params = [], bool $isGroupRoute = false ) {
         $this->regex = $regex;
         $this->params = $params;
         $this->isGroupRoute = $isGroupRoute;

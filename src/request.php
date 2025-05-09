@@ -10,10 +10,9 @@ use function mb_substr;
 use function str_replace;
 use function ucwords;
 
-// TODO: change to allow repeated keys
-// - options:
+// TODO: change to allow repeated keys ? Some options:
 //  1) matrix of pairs, like [ [ key, value ], [ key, value ] ]
-//  2) multiple values for a given key
+//  2) multiple values for a given key, like [ key1 => value, key2 => [ value1, value2 ] ]
 
 function extractHeaders( array &$array ) {
 
@@ -52,7 +51,6 @@ function extractHeaders( array &$array ) {
     return $headers;
 }
 
-
 function headerWithName( $name, array $array ): ?string {
     if ( isset( $array[ $name ] ) ) {
         return $array[ $name ];
@@ -66,7 +64,6 @@ function headerWithName( $name, array $array ): ?string {
     }
     return null;
 }
-
 
 /**
  * Extract cookies from the headers.
@@ -88,7 +85,6 @@ function extractCookies( array $headers ) {
     return $cookies;
 }
 
-
 function removeQueries( $url ) {
     if ( null === $url ) {
         return null;
@@ -99,7 +95,6 @@ function removeQueries( $url ) {
     }
     return mb_substr( $url, 0, $index );
 }
-
 
 function analizeBody( $contentType, $rawBody ) {
     if ( $contentType === null ) {

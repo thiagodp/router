@@ -15,7 +15,7 @@ class ExtraData {
      * @param mixed $value
      * @return ExtraData
      */
-    function set( $key, $value ): ExtraData {
+    public function set( $key, $value ): ExtraData {
         $this->data[ $key ] = $value;
         return $this;
     }
@@ -25,14 +25,14 @@ class ExtraData {
      * @param string|int $key
      * @return mixed
      */
-    function get( $key ) {
+    public function get( $key ) {
         return isset( $this->data[ $key ] ) ? $this->data[ $key ] : null;
     }
 
     /**
      * Returns the keys and values as an array.
      */
-    function toArray(): array {
+    public function toArray(): array {
         return $this->data;
     }
 }

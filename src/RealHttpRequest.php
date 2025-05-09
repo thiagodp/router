@@ -7,7 +7,6 @@ require_once 'request.php';
 
 use function file_get_contents;
 
-
 /**
  * Real HTTP request.
  */
@@ -18,53 +17,56 @@ class RealHttpRequest implements HttpRequest {
     private $_extra = null;
 
     /** @inheritDoc */
-    function url(): ?string {
+    public function url(): ?string {
         return $_SERVER[ 'REQUEST_URI' ] ?? null;
     }
 
     /** @inheritDoc */
-    function urlWithoutQueries(): ?string {
+    public function urlWithoutQueries(): ?string {
         return removeQueries( $this->url() );
     }
 
     /** @inheritDoc */
-    function queries(): array {
+    public function queries(): array {
         return $_GET;
     }
 
     /** @inheritDoc */
-    function headers(): array {
+    public function headers(): array {
+        if ( function_exists( 'getallheaders' ) ) {
+            return getallheaders();
+        }
         return extractHeaders( $_SERVER );
     }
 
     /** @inheritDoc */
-    function header( string $name ): ?string {
+    public function header( string $name ): ?string {
         return headerWithName( $name, $_SERVER );
     }
 
     /** @inheritDoc */
-    function rawBody(): ?string {
+    public function rawBody(): ?string {
         $content = @file_get_contents( 'php://input' );
         return $content === false ? null : $content;
     }
 
     /** @inheritDoc */
-    function body() {
+    public function body() {
         return analizeBody( $this->header( 'Content-Type' ), $this->rawBody() );
     }
 
     /** @inheritDoc */
-    function method(): ?string {
+    public function method(): ?string {
         return $_SERVER[ 'REQUEST_METHOD' ] ?? null;
     }
 
     /** @inheritDoc */
-    function cookies(): array {
+    public function cookies(): array {
         return $_COOKIE;
     }
 
     /** @inheritDoc */
-    function cookie( string $key ): ?string {
+    public function cookie( string $key ): ?string {
         if ( isset( $_COOKIE[ $key ] ) ) {
             return $_COOKIE[ $key ];
         }
@@ -75,7 +77,7 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function param( string $name ): ?string {
+    public function param( string $name ): ?string {
         if ( isset( $_GET[ $name ] ) ) {
             return urldecode( $_GET[ $name ] );
         }
@@ -83,13 +85,12 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function params(): array {
+    public function params(): array {
         return $this->_params;
     }
 
-
     /** @inheritDoc */
-    function extra(): ExtraData {
+    public function extra(): ExtraData {
         if ( $this->_extra === null ) {
             $this->_extra = new ExtraData();
         }
@@ -97,7 +98,7 @@ class RealHttpRequest implements HttpRequest {
     }
 
     /** @inheritDoc */
-    function withParams( array $params ): HttpRequest {
+    public function withParams( array $params ): HttpRequest {
         $this->_params = $params;
         return $this;
     }

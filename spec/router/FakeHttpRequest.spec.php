@@ -22,7 +22,7 @@ describe( 'FakeHttpRequest', function() {
             $req = new FakeHttpRequest();
             $req->withHeaders( [
                 'foo' => 'bar',
-                'zoo' => [ 'hello', 'world' ]
+                'zoo' => 'hello'
             ] );
             $r = $req->headers();
 

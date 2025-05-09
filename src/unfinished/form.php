@@ -29,12 +29,10 @@ use function tempnam;
 // W3C spec at https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.2
 //
 
-
 class ExtractionResult {
     public $data = [];
     public $files = [];
 }
-
 
 function extractFormDataAndFiles( $httpMethod, $contentType ) {
     $result = new ExtractionResult();
@@ -62,8 +60,6 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
     return $result;
 }
 
-
-
 // function arrayParam( &$params, $key, $preventInjection ) {
 //     if ( ! isset( $params[ $key ] ) ) {
 //         return null;
@@ -73,14 +69,12 @@ function extractFormDataAndFiles( $httpMethod, $contentType ) {
 //         : $params[ $key ];
 // }
 
-
 function handleFormUrlEncoded( &$content, ExtractionResult &$result ) {
     $params = [];
     if ( mb_parse_str( $content, $params ) !== false ) {
         $result->data = $params;
     }
 }
-
 
 /**
  * Extracts the file sent as "application/octet-stream".
@@ -97,14 +91,9 @@ function handleOctetStream( &$content, ExtractionResult &$result ) {
     return $ok;
 }
 
-
-function handleMultipartFormData( &$content, ExtractionResult &$result ) {
-
-}
-
+function handleMultipartFormData( &$content, ExtractionResult &$result ) {}
 
 // ============================================================================
-
 
 /**
  * Mimics PHP's upload file array structure
@@ -150,9 +139,7 @@ function saveToTempFile( &$content, TempSaveOptions $options = new TempSaveOptio
     return $fileName;
 }
 
-
 // ============================================================================
-
 
 const STATUS_NONE = 0;
 const STATUS_STARTED = 1;
@@ -174,7 +161,6 @@ class Context {
     public $key = null;
     public $value = null;
 }
-
 
 // TO-DO: Consider caching strategies to not parse the body again and again
 // on each key request. Maybe put it on a global variable, like $GLOBALS[ '_PUT' ] ?
@@ -213,7 +199,6 @@ function handleAsHeader( Context &$current, $line ) {
         }
 
         return true;
-
     } else if ( mb_stripos( 'Content-Type', $line ) === 0 ) {
         $current->lastLineWasHeader = true;
         $matches = [];
@@ -228,10 +213,8 @@ function handleAsHeader( Context &$current, $line ) {
     return false;
 }
 
-
 function handleAsContent( Context &$current, $line, array &$params ) {
     $current->lastLineWasHeader = false;
 }
-
 
 ?>

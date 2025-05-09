@@ -5,8 +5,8 @@ use function array_search;
 use function count;
 use function explode;
 
-const MIME_ANY      = '*/*';
-const ENCODING_ANY  = '*';
+const MIME_ANY = '*/*';
+const ENCODING_ANY = '*';
 
 function areMimePartCompatible( $first, $second ) {
     return $first == $second || $first == '*' || $second == '*';
@@ -48,7 +48,6 @@ function compareMimes( array $desired, array $received ) {
     }
     return false;
 }
-
 
 // ---
 

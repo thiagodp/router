@@ -17,29 +17,28 @@ abstract class RouteBasedEntry implements Entry {
     /** @var bool */
     public $isGroup = false;
 
-    function __construct( $route ) {
+    public function __construct( $route ) {
         $this->route = $route;
     }
 
     /** @inheritDoc */
-    abstract function type();
+    abstract public function type();
 
-
-    function withParent( $parent ) {
+    public function withParent( $parent ) {
         $this->parent = $parent;
         return $this;
     }
 
-    function withRoute( $parent ) {
+    public function withRoute( $parent ) {
         $this->parent = $parent;
         return $this;
     }
 
-    function hasParent() {
+    public function hasParent() {
         return $this->parent != null;
     }
 
-    function end() {
+    public function end() {
         return $this->hasParent() ? $this->parent : $this;
     }
 
