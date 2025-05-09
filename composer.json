@@ -12,9 +12,9 @@
     "require-dev": {
         "kahlan/kahlan": "^5.2",
         "phpstan/phpstan": "^1.9",
-        "friendsofphp/php-cs-fixer": "^3.70",
         "rector/rector": "^1.2",
-        "phputil/restage": "^0.4.1"
+        "phputil/restage": "^0.4.1",
+        "friendsofphp/php-cs-fixer": "^3.75"
     },
     "autoload": {
         "psr-4": {

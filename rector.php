@@ -7,5 +7,5 @@ use Rector\Set\ValueObject\LevelSetList;
 
 return RectorConfig::configure()
     ->withPaths([__DIR__ . '/src'])
-    ->withSets([LevelSetList::UP_TO_PHP_74])
+    ->withSets([LevelSetList::UP_TO_PHP_80])
     ->withImportNames();
