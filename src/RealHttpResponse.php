@@ -47,7 +47,8 @@ class RealHttpResponse implements HttpResponse {
 
         // Copy the headers about to send
         $headers = @headers_list();
-        foreach ( $headers as $key => $value ) {
+        foreach ( $headers as $h ) {
+            [ $key, $value ] = explode( ':', $h );
             $this->addHeader( $key, $value );
         }
         // Remove the headers about to send
