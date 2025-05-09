@@ -15,7 +15,7 @@
 
 ## Installation
 
-> Requires PHP 8.0+
+> Requires PHP 7.4+
 
 ```bash
 composer require phputil/router

@@ -10,11 +10,12 @@
         "ext-pcre": "*"
     },
     "require-dev": {
+        "php": ">=8.1",
         "kahlan/kahlan": "^5.2",
         "phpstan/phpstan": "^1.9",
         "rector/rector": "^1.2",
         "phputil/restage": "^0.4.1",
-        "friendsofphp/php-cs-fixer": "^3.75"
+        "friendsofphp/php-cs-fixer": "^2"
     },
     "autoload": {
         "psr-4": {
@@ -30,6 +31,7 @@
         "lint": "phpstan analyze",
         "rector": "rector",
         "style:check": "php-cs-fixer check --verbose",
-        "style:fix": "php-cs-fixer fix --verbose && restage"
+        "style:fix": "php-cs-fixer fix --verbose && restage",
+        "which": "composer depends php"
     }
 }
