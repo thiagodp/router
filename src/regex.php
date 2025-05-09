@@ -20,9 +20,7 @@ function routeToRegex( string $route, bool $isGroupRoute = false ): RouteToRegex
     $matches = [];
     preg_match_all( $paramRegex, $r, $matches );
     if ( count( $matches ) > 0 ) {
-        $matches = array_map( function( string $text ) {
-            return str_replace( ':', '', $text );
-        }, $matches[ 0 ] );
+        $matches = array_map( fn(string $text) => str_replace( ':', '', $text ), $matches[ 0 ] );
     }
     $parameterValueRegex = '(' . $asteriskRegex . '+)';
     $r = preg_replace( $paramRegex, $parameterValueRegex, $r );

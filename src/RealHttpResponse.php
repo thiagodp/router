@@ -260,9 +260,7 @@ class RealHttpResponse implements HttpResponse {
             throw new RuntimeException( 'File not found or not readable.' );
         }
 
-        $mime = isset( $options[ 'mime' ] )
-            ? $options[ 'mime' ]
-            : ( isset( $this->headers[ 'Content-Type' ] ) ? $this->headers[ 'Content-Type' ] : getFileMime( $path ) );
+        $mime = $options[ 'mime' ] ?? $this->headers[ 'Content-Type' ] ?? getFileMime( $path );
 
         if ( ! isset( $mime ) ) {
             throw new RuntimeException( 'MIME type could not be defined. Please inform it.' );

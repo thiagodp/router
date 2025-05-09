@@ -500,7 +500,7 @@ interface HttpResponse {
      * Note that the inner arrays do not have keys.
      *
      * @param string $header HTTP header. Optional, it default to `''`.
-     * @return string[]
+     * @return array<int, array<int, string>>
      */
     function getHeaders( string $header = '' ): array;
 

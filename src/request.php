@@ -41,7 +41,7 @@ function extractHeaders( array &$array ) {
         if ( isset( $array[ 'REDIRECT_HTTP_AUTHORIZATION' ] ) ) {
             $headers[ $key ] = $array[ 'REDIRECT_HTTP_AUTHORIZATION' ];
         } else if ( isset( $array[ 'PHP_AUTH_USER' ] ) ) {
-            $pwd = isset( $array[ 'PHP_AUTH_PW' ] ) ? $array[ 'PHP_AUTH_PW' ] : '';
+            $pwd = $array[ 'PHP_AUTH_PW' ] ?? '';
             $headers[ $key ] = 'Basic ' . base64_encode( $array[ 'PHP_AUTH_USER' ] . ':' . $pwd );
         } else if ( isset( $array[ 'PHP_AUTH_DIGEST' ] ) ) {
             $headers[ $key ] = $array[ 'PHP_AUTH_DIGEST' ];
@@ -77,7 +77,7 @@ function extractCookies( array $headers ) {
         if ( mb_strtolower( $key ) === 'cookie' ) {
             $pairs = explode( ';', $value ); // Allow more than one key per Cookie header
             foreach ( $pairs as $p ) {
-                list( $k, $v ) = explode( '=', $p );
+                [$k, $v] = explode( '=', $p );
                 $cookies[ $k ] = $v;
             }
         }
@@ -100,7 +100,7 @@ function analizeBody( $contentType, $rawBody ) {
     if ( $contentType === null ) {
         return $rawBody;
     }
-    list( $cType ) = explode( ';', mb_strtolower( $contentType ) ); // Explode to avoid to comparing the charset
+    [$cType] = explode( ';', mb_strtolower( $contentType ) ); // Explode to avoid to comparing the charset
     if ( $cType === 'application/x-www-form-urlencoded' ) {
         $data = [];
         if ( mb_parse_str( $rawBody, $data ) ) { // Success

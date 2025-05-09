@@ -70,7 +70,7 @@ class Router extends GroupEntry {
             // Find the route
             $newRoute = joinRoutes( [ $parentRoute, $entry->route ] );
             $isGroupRoute = $entry->type() === ENTRY_GROUP;
-            list( $found, $var ) = extractVariables( $path, $newRoute, $isGroupRoute );
+            [$found, $var] = extractVariables( $path, $newRoute, $isGroupRoute );
             if ( ! $found ) {
                 continue;
             }

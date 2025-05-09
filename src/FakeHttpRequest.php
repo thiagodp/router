@@ -66,12 +66,12 @@ class FakeHttpRequest implements HttpRequest {
 
     /** @inheritDoc */
     public function cookie( $key ): ?string {
-        return isset( $this->_cookies[ $key ] ) ? $this->_cookies[ $key ] : null;
+        return $this->_cookies[ $key ] ?? null;
     }
 
     /** @inheritDoc */
     public function param( $name ): ?string {
-        return isset( $this->_params[ $name ] ) ? $this->_params[ $name ] : null;
+        return $this->_params[ $name ] ?? null;
     }
 
     /** @inheritDoc */

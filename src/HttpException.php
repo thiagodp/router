@@ -1,6 +1,8 @@
 <?php
 namespace phputil\router;
 
-class HttpException extends \RuntimeException {}
+use RuntimeException;
+
+class HttpException extends RuntimeException {}
 
 ?>

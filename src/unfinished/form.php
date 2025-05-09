@@ -85,7 +85,7 @@ function handleOctetStream( &$content, ExtractionResult &$result ) {
     $matches = [];
     $ok = preg_match( '/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $content, $matches );
     if ( $ok ) {
-        list( , $fileName, &$fileContent ) = $matches;
+        [, $fileName, &$fileContent] = $matches;
         $result->files[ $fileName ] = $fileContent;
     }
     return $ok;
@@ -192,7 +192,7 @@ function handleAsHeader( Context &$current, $line ) {
         $current->lastLineWasHeader = true;
         $matches = [];
         preg_match( '/^Content\-Disposition\: ([a-z -\/]+); (?:name|filename)\="([^"]+)"/iu', $line, $matches );
-        list( $type, $name ) = $matches;
+        [$type, $name] = $matches;
         if ( $type === 'form-data' ) {
 
         } else if ( $type === 'file' ) {
@@ -205,7 +205,7 @@ function handleAsHeader( Context &$current, $line ) {
         if ( ! preg_match( '/^Content\-Type\: ([a-z -\/]+)(?:; boundary=)?([a-zA-Z0-9]+)?$/i', $line, $matches ) ) {
             return false;
         }
-        list( , $contentType, $boundary ) = $matches;
+        [, $contentType, $boundary] = $matches;
         $current->contentType = $contentType;
         $current->boundary = $boundary;
         return true;

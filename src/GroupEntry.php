@@ -87,7 +87,7 @@ class GroupEntry extends RouteBasedEntry {
 
     /** Back to the parent, if it exists */
     public function end() {
-        return $this->parent === null ? $this : $this->parent;
+        return $this->parent ?? $this;
     }
 
     // MIDDLEWARE
