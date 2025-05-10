@@ -15,7 +15,8 @@
         "phpstan/phpstan": "^1.9",
         "rector/rector": "^1.2",
         "phputil/restage": "^0.4.1",
-        "friendsofphp/php-cs-fixer": "^2"
+        "friendsofphp/php-cs-fixer": "^2",
+        "symfony/http-client": "6"
     },
     "autoload": {
         "psr-4": {

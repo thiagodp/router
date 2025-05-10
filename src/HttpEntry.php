@@ -9,8 +9,8 @@ class HttpEntry extends RouteBasedEntry {
 
     public $httpMethod = METHOD_GET;
 
-    /** @var array Array of callbacks with the following syntax: ( $req, $res, bool &$stop = false ) */
-    public $callbacks = [];
+    /** @var array<callable> Array of callbacks with the following syntax: ( $req, $res, bool &$stop = false ) */
+    public array $callbacks = [];
 
     public function __construct( $route, $httpMethod, array $callbacks ) {
         parent::__construct( $route );
