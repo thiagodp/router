@@ -1,7 +1,7 @@
-![Packagist Version](https://img.shields.io/packagist/v/phputil/router?style=for-the-badge&color=green)
-![GitHub License](https://img.shields.io/github/license/thiagodp/router?style=for-the-badge&color=green)
-![Packagist Downloads](https://img.shields.io/packagist/dt/phputil/router?style=for-the-badge&color=green)
-![Build](https://github.com/thiagodp/router/actions/workflows/ci.yml/badge.svg?style=for-the-badge&color=green)
+[![Packagist Version](https://img.shields.io/packagist/v/phputil/router?style=for-the-badge&color=green)](https://github.com/thiagodp/router/commits/main/)
+[![GitHub License](https://img.shields.io/github/license/thiagodp/router?style=for-the-badge&color=green)](https://github.com/thiagodp/router/blob/main/LICENSE)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/phputil/router?style=for-the-badge&color=green)](https://packagist.org/packages/phputil/router)
+[![Build](https://github.com/thiagodp/router/actions/workflows/ci.yml/badge.svg?style=for-the-badge&color=green)](https://github.com/thiagodp/cors/actions)
 
 # phputil/router
 
@@ -21,7 +21,7 @@
 composer require phputil/router
 ```
 
-_Was it useful for you? Consider giving it a Star ⭐_
+_Is it useful for you? Consider giving it a Star ⭐_
 
 ### Installation notes
 
