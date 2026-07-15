@@ -27,9 +27,12 @@ const STATUS_METHOD_NOT_ALLOWED = 405;
 
 // ERROR HANDLER --------------------------------------------------------------
 
-function defaultErrorHandler( Throwable $e, HttpRequest $req, HttpResponse $res, bool $debugMode = false ) {
+function defaultErrorHandler( Throwable $e, HttpRequest $req, HttpResponse $res, bool $debugMode ) {
     if ( $debugMode ) {
-        $res->status( 500 )->send( $e->getTraceAsString() );
+        $traceContent = str_replace( "\n", '<br />', $e->getTraceAsString() );
+        [ , $traceContent ] = explode( '{', $traceContent );
+        $trace = "<br /><br />Stack Trace: <br/><code>{" . $traceContent . '</code>';
+        $res->status( 500 )->send( $e->getMessage() . $trace );
     } else {
         $res->status( 500 )->send( $e->getMessage() );
     }
