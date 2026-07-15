@@ -2,12 +2,12 @@
 
 use Symfony\Component\HttpClient\HttpClient;
 
-const SERVER = [ 'domain' => '127.0.0.1', 'port' => '9999' ];
+$server = [ 'domain' => '127.0.0.1', 'port' => '9999' ];
 
-describe( 'server', function(){
+describe( 'server', function() use ($server){
 
     $rootDir = dirname( __FILE__ );
-    $this->server = SERVER[ 'domain' ] . ':' . SERVER[ 'port' ];
+    $this->server = $server[ 'domain' ] . ':' . $server[ 'port' ];
     $this->process = null;
 
 
