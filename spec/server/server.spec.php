@@ -2,7 +2,7 @@
 
 use Symfony\Component\HttpClient\HttpClient;
 
-const SERVER = [ 'domain' => 'localhost', 'port' => '9999' ];
+const SERVER = [ 'domain' => '127.0.0.1', 'port' => '9999' ];
 
 describe( 'server', function(){
 
