@@ -1,6 +1,7 @@
 <?php
 // require_once 'vendor/autoload.php';
-require_once '../../src/router.php';
+require_once __DIR__ . '/../../src/RouteToRegexResult.php';
+require_once __DIR__ . '/../../src/Router.php';
 require_once 'tasks.php'; // Fake model
 
 $app = new \phputil\router\Router();
