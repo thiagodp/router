@@ -15,6 +15,8 @@ require_once 'MiddlewareEntry.php';
 require_once 'regex.php';
 require_once 'RouterOptions.php';
 
+use Throwable;
+
 use function call_user_func_array;
 use function is_array;
 
@@ -23,14 +25,53 @@ use function is_array;
 const STATUS_NOT_FOUND = 404;
 const STATUS_METHOD_NOT_ALLOWED = 405;
 
+// ERROR HANDLER --------------------------------------------------------------
+
+function defaultErrorHandler( Throwable $e, HttpRequest $req, HttpResponse $res, bool $debugMode = false ) {
+    if ( $debugMode ) {
+        $res->status( 500 )->send( $e->getTraceAsString() );
+    } else {
+        $res->status( 500 )->send( $e->getMessage() );
+    }
+}
+
 // ROUTER ---------------------------------------------------------------------
 
 class Router extends GroupEntry {
 
     // private $conditions = []; // Same structure as $entries
+    private bool $debugMode = false;
+
+    /** @var callable|null */
+    private $errorHandler = null;
 
     public function __construct() {
         parent::__construct( '' );
+    }
+
+    public function isDebugMode(): bool {
+        return $this->debugMode;
+    }
+    public function setDebugMode( $debugMode ): self {
+        $this->debugMode = $debugMode;
+        return $this;
+    }
+
+    public function getErrorHandler() {
+        return $this->errorHandler;
+    }
+
+    public function setErrorHandler( $handler ): self {
+        $this->errorHandler = $handler;
+        return $this;
+    }
+
+    protected function invokeErrorHandler( Throwable $e, $req, $res ): void {
+        if ( $this->errorHandler === null || ! is_callable( $this->errorHandler ) ) {
+            defaultErrorHandler( $e, $req, $res, $this->isDebugMode() );
+            return;
+        }
+        call_user_func_array( $this->errorHandler, [ $e, $req, $res, $this->isDebugMode() ] );
     }
 
     // TODO: refactor
@@ -53,7 +94,14 @@ class Router extends GroupEntry {
             // Middleware
             if ( $entry->type() === ENTRY_MIDDLEWARE && isset( $entry->callback ) ) {
                 $stop = false;
-                $ok = ! ( call_user_func_array( $entry->callback, [ &$req, &$res, &$stop ] ) === false );
+                $ok = false;
+                try {
+                    $ok = ! ( call_user_func_array( $entry->callback, [ &$req, &$res, &$stop ] ) === false );
+                } catch ( Throwable $e ) {
+                    $this->invokeErrorHandler( $e, $req, $res );
+                    $hasStopped = true;
+                    return false;
+                }
                 if ( ! $ok ) {
                     return false;
                 }
@@ -200,8 +248,13 @@ class Router extends GroupEntry {
             //     array_pop( $args );
             // }
 
-            $ok = ! ( call_user_func_array( $callback, $args ) === false );
-            // @phpstan-ignore-next-line
+            $ok = false;
+            try {
+                $ok = ! ( call_user_func_array( $callback, $args ) === false );
+            } catch ( Throwable $e ) {
+                $this->invokeErrorHandler( $e, $req, $res );
+                $stop = true;
+            }
             if ( ! $ok || $stop ) {
                 break;
             }

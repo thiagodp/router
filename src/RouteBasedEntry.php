@@ -5,17 +5,14 @@ require_once 'Entry.php';
 
 abstract class RouteBasedEntry implements Entry {
 
-    /** @var string */
     public string $route = '';
 
-    /** @var Entry */
-    public $parent = null;
+    public ?Entry $parent = null;
 
     /** @var array<Entry> */
-    public $children = [];
+    public array $children = [];
 
-    /** @var bool */
-    public $isGroup = false;
+    public bool $isGroup = false;
 
     public function __construct( $route ) {
         $this->route = $route;

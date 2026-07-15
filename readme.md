@@ -158,20 +158,76 @@ where:
 
 > Class that represents a router.
 
+#### isDebugMode
+
+> Version 0.4+
+
+Indicates if the router is in _debug mode_ - in which exception traces are echoed. It is `false` by default.
+
+Example:
+```php
+echo 'Debug mode: ', $app->isDebugMode() ? 'Yes' : 'No';
+```
+
+#### setDebugMode
+
+> Version 0.4+
+
+Sets the _debug mode_ - in which exception traces are echoed.
+
+Example:
+```php
+$app->setDebugMode( true );
+```
+
+#### getErrorHandler
+
+> Version 0.4+
+
+Returns the error handler, used for catching exceptions in route callbacks and middlewares. It is `null` by default, what makes the router to use the function `defaultErrorHandler` as the error handler. That handler returns an HTTP `500` with the error message in the body. When `isDebugMode()` is set, it returns the stack trace in the message body.
+
+Example:
+```php
+$callback = $app->getErrorHandler();
+```
+
+#### setErrorHandler
+
+> Version 0.4+
+
+Sets the error handler, used for catching exceptions in route callbacks and middlewares. The error handler has the following syntax:
+
+```php
+function( \Throwable $e, HttpRequest $req, HttpResponse $res, bool $isDebugMode ): void
+```
+
+Example:
+```php
+function myErrorHandler( \Throwable $e, HttpRequest $req, HttpResponse $res, bool $isDebugMode ): void {
+    $msg = $e->getMessage();
+    if ( $e instanceof MyOwnException ) {
+        $msg = 'My own message';
+    }
+    $res->status( 500 )->send( $msg );
+}
+
+$app->setErrorHandler( 'myErrorHandler' );
+```
+
 #### get
 
 Method that deals with a `GET` HTTP request.
 
 ```php
-function get( string $route, callable ...$callbacks )
+get( string $route, callable ...$callbacks )
 ```
 where:
 - `$route` is a route (path).
 - `$callbacks` can receive none, one or more [middleware](#middleware) functions and one route handler - which must be the last function.
 
-A route handler has the following syntax:
+A route handler (callback) has the following syntax:
 ```php
-function ( HttpRequest $req, HttpResponse $res )
+function( HttpRequest $req, HttpResponse $res )
 ```
 where:
 - `$req` allows to _get_ all the _request_ headers and data.

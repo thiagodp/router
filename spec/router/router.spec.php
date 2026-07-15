@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../src/FakeHttpRequest.php';
 require_once __DIR__ . '/../../src/Router.php';
 
 use \phputil\router\FakeHttpRequest;
+use phputil\router\FakeHttpResponse;
 use \phputil\router\Router;
 
 use const phputil\router\STATUS_METHOD_NOT_ALLOWED;
@@ -84,6 +85,42 @@ describe( 'router', function() {
             }
         } );
 
+        it( 'must deal with an exception', function() {
+
+            $res = new FakeHttpResponse();
+
+            $count = 0;
+            $callback = function( $req, $res ) use ( &$count ) { $count++; throw new Exception('Ouch'); };
+            $this->router->get( '/foo', $callback );
+
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+            [ $ok ] = $this->router->listen( [ 'req' => $this->fakeReq, 'res' => $res ] );
+
+            expect( $count )->toBe( 1 );
+            expect( $ok )->toBe( false );
+        } );
+
+
+        it( 'must call a given exception handler when set', function() {
+
+            $res = new FakeHttpResponse();
+
+            $count = 0;
+            $callback = function( $req, $res ) use ( &$count ) { $count++; throw new Exception('Ouch'); };
+            $this->router->get( '/foo', $callback );
+
+            $errorHandler = function( $e, $req, $res, $debugMode ) use ( &$count ) { $count++; };
+            $this->router->setErrorHandler( $errorHandler );
+
+            $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+            [ $ok ] = $this->router->listen( [ 'req' => $this->fakeReq, 'res' => $res ] );
+
+            $this->router->setErrorHandler( null );
+
+            expect( $count )->toBe( 2 );
+            expect( $ok )->toBe( false );
+        } );
+
 
         describe( 'middleware', function() {
 
@@ -105,7 +142,7 @@ describe( 'router', function() {
             } );
 
 
-            it( 'should call all the callbacks when the prior callback indicates a stop', function() {
+            it( 'should call all the callbacks in sequence', function() {
 
                 $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
 
@@ -115,11 +152,30 @@ describe( 'router', function() {
                 $callback3 = function( $req, $res ) use ( &$count ) { $count++; };
 
                 $this->router->get( '/foo', $callback1, $callback2, $callback3 );
-                list( $ok, , $res ) = $this->router->listen( [ 'req' => $this->fakeReq ] ); // It should NOT call $calllback
+                list( $ok, , $res ) = $this->router->listen( [ 'req' => $this->fakeReq ] );
 
                 expect( $ok )->toBe( true );
                 expect( $count )->toBe( 3 );
                 expect( $res->isStatus( STATUS_NOT_FOUND ) )->toBeFalsy();
+            } );
+
+
+            it( 'should not call the next callback when an exception is thrown', function() {
+
+                $fakeRes = new FakeHttpResponse();
+
+                $this->fakeReq->withURL( '/foo' )->withMethod( 'GET' );
+
+                $callback1 = function( $req, $res, &$stop ) { throw new Exception( 'Bad' ); };
+
+                $count = 0;
+                $callback2 = function( $req, $res ) use ( &$count ) { $count++; };
+
+                $this->router->get( '/foo', $callback1, $callback2 );
+                list( $ok, , $res ) = $this->router->listen( [ 'req' => $this->fakeReq, 'res' => $fakeRes ] ); // It should NOT call $calllback2
+
+                expect( $count )->toBe( 0 );
+                expect( $ok )->toBe( false );
             } );
 
         } );
