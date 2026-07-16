@@ -55,16 +55,16 @@ class Router extends GroupEntry {
     public function isDebugMode(): bool {
         return $this->debugMode;
     }
-    public function setDebugMode( $debugMode ): self {
+    public function setDebugMode( bool $debugMode ) {
         $this->debugMode = $debugMode;
         return $this;
     }
 
-    public function getErrorHandler() {
+    public function getErrorHandler(): ?callable {
         return $this->errorHandler;
     }
 
-    public function setErrorHandler( $handler ): self {
+    public function setErrorHandler( ?callable $handler ) {
         $this->errorHandler = $handler;
         return $this;
     }
@@ -178,7 +178,7 @@ class Router extends GroupEntry {
      * @param array|RouterOptions $options Options. listen( [ 'rootURL' => dirname( $_SERVER[ 'PHP_SELF' ] ) ] )
      * @return array
      */
-    public function listen( $options = [] ) {
+    public function listen( $options = [] ): array {
 
         $opt = null;
         if ( is_array( $options ) ) {

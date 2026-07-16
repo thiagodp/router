@@ -158,6 +158,40 @@ where:
 
 > Class that represents a router.
 
+Overview:
+```php
+class Router {
+    // Debug mode
+    public function isDebugMode(): bool;
+    public function setDebugMode( bool $debugMode ): static;
+
+    // Error handler
+    public function getErrorHandler(): ?callable;
+    public function setErrorHandler( ?callable $handler ): static;
+
+    // Middleware definition (can be called many times for different middlewares)
+    public function use( callable $middleware ): static;
+
+    // Route definition
+    public function get( string $route, callable ...$callbacks ): static;
+    public function post( string $route, callable ...$callbacks ): static;
+    public function put( string $route, callable ...$callbacks ): static;
+    public function delete( string $route, callable ...$callbacks ): static;
+    public function patch( string $route, callable ...$callbacks ): static;
+    public function options( string $route, callable ...$callbacks ): static;
+    public function head( string $route, callable ...$callbacks ): static;
+    public function all( string $route, callable ...$callbacks ): static; // All HTTP methods
+
+    // Route group definition
+    public function group( string $route ): static;
+    public function route( string $route ): static; // Alias to group()
+    public function end(): static;
+
+    // Listen to routes
+    public function listen( array|RouterOptions $options = [] ): array;
+}
+```
+
 #### isDebugMode
 
 > Version 0.4+
